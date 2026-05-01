@@ -142,41 +142,9 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 ### 6.4 Diagramma dei casi d'uso
 
 
-```plantuml
-@startuml SchoolHRM
 
-actor "Visitatore"  as Visitatore
-actor "Studente"    as Studente
-actor "Docente"     as Docente
+![Diagramma dei casi d'uso](assets/usecase.png)
 
-package "SchoolHRM" {
-  usecase "Visualizza progetti"     as UC03
-  usecase "Autenticazione"          as UC_auth
-  usecase "Gestione CRUD"           as UC04
-  usecase "Visualizza feedback"     as UC07
-  usecase "Svolgi progetto"         as UC05
-  usecase "Valuta docente"          as UC06
-}
-
-Visitatore  --> UC03
-Studente    --|> Visitatore
-Docente     --|> Visitatore
-
-Studente    --> UC_auth
-Studente    --> UC05
-Studente    --> UC06
-
-Docente     --> UC_auth
-Docente     --> UC04
-Docente     --> UC07
-
-UC04 .> UC03 : <<include>>
-UC06 .> UC05 : <<extend>>
-
-@enduml
-```
-
----
 
 ## 7. Glossario dei termini
 
