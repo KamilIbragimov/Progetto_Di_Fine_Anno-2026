@@ -20,6 +20,7 @@ Docente  --|> Visitatore
 
 package "SchoolHRM" {
   usecase "Visualizza progetti"    as UC03
+  usecase "Visualizza dashboard"   as UC08
   usecase "Autenticazione"         as UC_auth
   usecase "Gestione CRUD"          as UC04
   usecase "Visualizza feedback"    as UC07
@@ -28,6 +29,7 @@ package "SchoolHRM" {
 }
 
 Visitatore --> UC03
+Visitatore --> UC08
 
 Studente   --> UC_auth
 Studente   --> UC05
