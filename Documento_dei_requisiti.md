@@ -192,32 +192,31 @@ Il progetto si articola in cinque fasi principali:
 ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
-    title 🎓 Piano di Sviluppo SchoolHRM
-    axisFormat Giorno %j
+    title Piano di Sviluppo SchoolHRM — 30 giorni
+    axisFormat %d/%m
 
-    section 🔍 Analisi
-    Requisiti e ER          :a1, 2026-01-01, 5d
-    UML e Casi d'Uso        :a2, after a1, 5d
-    🏁 Fine Design          :milestone, after a2, 0d
+    section Analisi
+    Requisiti e ER          :a1, 2026-05-01, 2d
+    UML e Casi d'Uso        :a2, 2026-05-03, 2d
+    Fine Analisi            :milestone, 2026-05-05, 0d
 
-    section 💻 Backend
-    Setup Flask/DB          :b0, after a2, 5d
-    Auth e Ruoli            :b1, after b0, 6d
-    Modulo Progetti         :b2, after b1, 6d
-    Gestione Feedback       :b3, after b2, 6d
-    📦 MVP Pronto           :milestone, after b3, 0d
+    section Backend
+    Setup Flask e MySQL     :b0, 2026-05-05, 2d
+    Auth e Ruoli            :b1, 2026-05-07, 4d
+    Modulo Progetti         :b2, 2026-05-11, 4d
+    Gestione Feedback       :b3, 2026-05-15, 3d
+    MVP Pronto              :milestone, 2026-05-18, 0d
 
-    section 📊 Analytics
-    Refactor Repo           :h1, after b3, 5d
-    Integrazione            :h2, after h1, 5d
+    section Analytics
+    Refactor HRanalytics    :h1, 2026-05-18, 3d
+    Integrazione Dashboard  :h2, 2026-05-21, 3d
 
-    section 🛠️ Consegna
-    Bug Fix e Test          :c1, after h2, 5d
-    Documentazione          :c2, after c1, 4d
-    Deploy Finale           :d1, after c2, 4d
-    🚀 Fine                 :milestone, after d1, 0d
+    section Consegna
+    Bug Fix e Test          :c1, 2026-05-24, 3d
+    Documentazione          :c2, 2026-05-27, 2d
+    Deploy Finale           :d1, 2026-05-29, 2d
+    Fine Progetto           :milestone, 2026-05-31, 0d
 ```
-
 ### 8.2 Descrizione delle fasi
 
 #### Fase 1 — Analisi *(giorni 1–4)*
