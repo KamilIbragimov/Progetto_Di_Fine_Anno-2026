@@ -121,7 +121,9 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 - **Svolgi progetto** (`UC05`): lo studente autenticato si iscrive a un progetto tra quelli disponibili e ne traccia lo svolgimento sulla propria dashboard personale.
 - **Valuta docente** (`UC06`): lo studente autenticato assegna una valutazione in stelle (1–5) e un commento testuale al docente responsabile di un progetto. Questa operazione estende `UC05`.
 - **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti.
-
+- **Visualizza dashboard** (`UC08`): qualsiasi utente, anche non autenticato, 
+  può visualizzare la dashboard pubblica con dati aggregati sui progetti, 
+  le valutazioni medie dei docenti e le statistiche di partecipazione.
 ### 6.3 Relazioni tra casi d'uso: include ed extend
 
 Nel diagramma dei casi d'uso si usano due tipi di relazioni aggiuntive:
