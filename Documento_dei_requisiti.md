@@ -219,22 +219,20 @@ gantt
 ```
 ### 8.2 Descrizione delle fasi
 
+
 #### Fase 1 — Analisi *(giorni 1–4)*
 
 Si definiscono i requisiti funzionali e non funzionali del sistema, si produce lo schema ER del database MySQL con tutte le entità (utente, progetto, feedback, iscrizione) e le relative relazioni, e si disegnano il diagramma UML delle classi e il diagramma dei casi d'uso. Si configura anche l'ambiente di sviluppo locale: virtual environment Python, Flask installato, connessione di test al database MySQL.
 
-#### Fase 2 — Sviluppo Flask *(giorni 5–17)*
+#### Fase 2 — Backend *(giorni 5–17)*
 
 Si costruisce l'intera applicazione web Flask organizzata in Blueprint distinti per area funzionale (autenticazione, progetti, feedback). Si implementano i template Jinja2 per tutte le pagine (registrazione, login, lista progetti, dettaglio progetto, dashboard docente). Si scrivono le query SQL per tutte le operazioni CRUD, l'autenticazione con gestione dei ruoli studente/docente tramite sessioni Flask, il sistema di iscrizione ai progetti e il modulo di feedback con valutazione a stelle (1–5) e commento testuale.
 
-#### Fase 3 — Integrazione HRanalytics *(giorni 18–23)*
+#### Fase 3 — Analytcs *(giorni 18–23)*
 
 Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stesso schema MySQL di SchoolHRM invece dei dataset generici originali. Si adattano le query e i modelli di dati della dashboard alle entità del progetto (studenti, docenti, progetti, feedback). La dashboard viene poi integrata come sezione dedicata nell'applicazione Flask, accessibile ai docenti autenticati, mostrando metriche aggregate come andamento delle valutazioni nel tempo, distribuzione dei feedback per progetto e tasso di partecipazione degli studenti.
 
-#### Fase 4 — Rifinitura *(giorni 24–28)*
+#### Fase 4 — Consegna *(giorni 24-31)*
 
 Si esegue il testing manuale di tutti i flussi principali (registrazione, login, CRUD progetti, iscrizione, feedback, dashboard analitica). Si correggono i bug emersi, si verifica la sicurezza dei form (protezione CSRF, validazione input lato server), si ottimizzano le query SQL e si completa la documentazione tecnica: README con istruzioni di installazione, struttura del progetto e variabili d'ambiente richieste.
-
-#### Fase 5 — Deploy in produzione *(giorni 29–30)*
-
 Si configura **Gunicorn** come server WSGI e si prepara il `Procfile` per Render. Il repository GitHub viene collegato a **Render** per il deploy automatico ad ogni `git push` sul branch `main`. Il database MySQL viene creato su **Railway** e le credenziali vengono inserite come variabili d'ambiente su Render (mai hardcodate nel codice). Si esegue un collaudo finale sull'ambiente di produzione verificando tutti i flussi end-to-end prima della consegna.
