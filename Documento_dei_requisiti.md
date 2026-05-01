@@ -170,22 +170,21 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 
 ## 8. Pianificazione e milestone
 
-Il progetto si articola in cinque fasi principali:
+## 8. Pianificazione e milestone
+
+Il progetto si articola in quattro fasi principali:
 
 - **Analisi**: definizione dei requisiti, schema ER e diagrammi UML/casi d'uso.
-- **Sviluppo Flask**: implementazione dell'app web con Blueprints, templates Jinja2, query SQL e connessione al database MySQL.
-- **Integrazione HRanalytics**: rimodellazione del repository HRanalytics per adattarlo allo schema MySQL del progetto e integrazione nella piattaforma.
-- **Rifinitura**: test, correzione bug e documentazione.
-- **Deploy in produzione**: configurazione Gunicorn, deploy su Render, hosting database su Railway.
+- **Backend**: implementazione dell'app web con Blueprints, templates Jinja2, query SQL e connessione al database MySQL.
+- **Analytics**: rimodellazione del repository HRanalytics per adattarlo allo schema MySQL del progetto e integrazione nella piattaforma.
+- **Consegna**: test, correzione bug, documentazione, configurazione Gunicorn, deploy su Render e hosting database su Railway.
 
-| Settimana | Attività                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------- |
-| 1         | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + MySQL       |
-| 2–3      | Sviluppo Flask: Blueprints, templates Jinja2, autenticazione con ruoli, CRUD progetti       |
-| 4         | Sviluppo Flask: svolgimento progetti, sistema di feedback, query e connessione DB           |
-| 5         | Rimodellazione HRanalytics, adattamento schema MySQL, integrazione dashboard nel progetto   |
-| 6         | Test, correzione bug, documentazione, README                                                |
-| 7         | Configurazione Gunicorn, deploy su Render, setup database MySQL su Railway, collaudo finale |
+| Giorni | Attività |
+|---|---|
+| 1–4 | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + MySQL |
+| 5–17 | Backend: Blueprints, templates Jinja2, autenticazione con ruoli, CRUD progetti, feedback |
+| 18–23 | Analytics: refactor HRanalytics, adattamento schema MySQL, integrazione dashboard |
+| 24–31 | Consegna: test, bug fix, documentazione, deploy su Render, database MySQL su Railway |
 
 ### 8.1 Gantt semplificato
 
