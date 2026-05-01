@@ -75,6 +75,7 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 ### 4.2 User stories
 
 - Come **visitatore**, voglio visualizzare l'elenco dei progetti disponibili senza dover fare il login.
+- Come **visitatore**, voglio visualizzare la dashboard generale senza dover fare il login.
 - Come **studente**, voglio registrarmi e autenticarmi per accedere alle funzionalità della piattaforma.
 - Come **studente autenticato**, voglio iscrivermi a un progetto per poterlo svolgere.
 - Come **studente autenticato**, voglio valutare un docente con stelle e un commento per condividere la mia esperienza.
@@ -111,6 +112,7 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 | UC05 | Svolgi progetto              |
 | UC06 | Valuta docente               |
 | UC07 | Visualizza feedback ricevuti |
+| UC08 | Visualizza dashboard         |
 
 ### 6.2 Descrizione semplificata dei casi d'uso
 
