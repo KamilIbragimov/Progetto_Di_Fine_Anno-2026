@@ -1,4 +1,4 @@
-@startuml SchoolHRM_UseCase
+@startuml usecase
 
 skinparam actorStyle awesome
 skinparam packageStyle rectangle

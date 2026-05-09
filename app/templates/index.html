@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}SchoolHRM — Home{% endblock %}
+{% block content %}
+<div class="hero">
+  <h1>SchoolHRM</h1>
+  <p>La piattaforma per la gestione dei progetti scolastici e il feedback ai docenti.</p>
+  <a href="{{ url_for('main.lista_progetti') }}" class="btn btn-primary">Sfoglia i progetti</a>
+  {% if not g.user %}
+    <a href="{{ url_for('auth.registra') }}" class="btn btn-secondary">Registrati</a>
+  {% endif %}
+</div>
+{% endblock %}

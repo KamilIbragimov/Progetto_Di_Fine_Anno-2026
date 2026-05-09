@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}{{ progetto.titolo }} — SchoolHRM{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.3rem">
+    <h2 style="margin:0">{{ progetto.titolo }}</h2>
+    {% if progetto.stato == 'disponibile' %}
+      <span class="badge badge-disponibile">Disponibile</span>
+    {% elif progetto.stato == 'in_corso' %}
+      <span class="badge badge-in-corso">In corso</span>
+    {% else %}
+      <span class="badge badge-completato">Completato</span>
+    {% endif %}
+  </div>
+  <div class="card-meta">Docente: <strong>{{ progetto.nome_docente }}</strong></div>
+  <hr>
+  <p>{{ progetto.descrizione or 'Nessuna descrizione.' }}</p>
+
+  <div class="actions">
+    <a href="{{ url_for('main.lista_progetti') }}" class="btn btn-secondary btn-sm">← Lista progetti</a>
+
+    {% if g.user %}
+      {% if g.user.ruolo == 'studente' %}
+        {% if is_iscritto %}
+          <span class="badge badge-in-corso" style="padding:.35rem .8rem;font-size:.85rem">Già iscritto</span>
+          <a href="{{ url_for('studenti.valuta', progetto_id=progetto.id) }}" class="btn btn-success btn-sm">
+            Valuta docente
+          </a>
+        {% elif progetto.stato != 'completato' %}
+          <form method="post" action="{{ url_for('studenti.iscrivi', progetto_id=progetto.id) }}" style="display:inline">
+            <button type="submit" class="btn btn-primary btn-sm">Iscriviti</button>
+          </form>
+        {% endif %}
+      {% elif g.user.ruolo == 'docente' and g.user.id == progetto.docente_id %}
+        <a href="{{ url_for('docenti.modifica_progetto', id=progetto.id) }}" class="btn btn-primary btn-sm">
+          Modifica
+        </a>
+        {% if progetto.stato == 'disponibile' and studenti|length == 0 %}
+          <form method="post" action="{{ url_for('docenti.elimina_progetto', id=progetto.id) }}"
+                style="display:inline" onsubmit="return confirm('Eliminare questo progetto?')">
+            <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% if studenti %}
+<div class="card">
+  <h3 style="margin-bottom:.8rem">Contributori</h3>
+  <div class="contributors">
+    {% for s in studenti %}
+      <div class="contributor-chip">
+        <span class="contributor-avatar">{{ s.nome[0] }}</span>
+        <div class="contributor-info">
+          <span class="contributor-name">{{ s.nome }}</span>
+          <div class="progress-wrap" style="margin-top:.2rem">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:{{ s.progresso }}%"></div>
+            </div>
+            <span class="progress-label">{{ s.progresso }}%</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

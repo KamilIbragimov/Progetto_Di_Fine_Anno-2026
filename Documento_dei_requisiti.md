@@ -75,8 +75,8 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 ### 4.2 User stories
 
 - Come **visitatore**, voglio visualizzare l'elenco dei progetti disponibili senza dover fare il login.
-- Come **visitatore**, voglio visualizzare la dashboard generale senza dover fare il login.
 - Come **studente**, voglio registrarmi e autenticarmi per accedere alle funzionalità della piattaforma.
+- Come **studente autenticato**, voglio visualizzare la dashboard per consultare i dati aggregati sui progetti, le valutazioni medie dei docenti e le statistiche di partecipazione.
 - Come **studente autenticato**, voglio iscrivermi a un progetto per poterlo svolgere.
 - Come **studente autenticato**, voglio valutare un docente con stelle e un commento per condividere la mia esperienza.
 - Come **docente**, voglio registrarmi e autenticarmi per gestire i miei progetti.
@@ -123,9 +123,8 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 - **Svolgi progetto** (`UC05`): lo studente autenticato si iscrive a un progetto tra quelli disponibili e ne traccia lo svolgimento sulla propria dashboard personale.
 - **Valuta docente** (`UC06`): lo studente autenticato assegna una valutazione in stelle (1–5) e un commento testuale al docente responsabile di un progetto. Questa operazione estende `UC05`.
 - **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti.
-- **Visualizza dashboard** (`UC08`): qualsiasi utente, anche non autenticato, 
-  può visualizzare la dashboard pubblica con dati aggregati sui progetti, 
-  le valutazioni medie dei docenti e le statistiche di partecipazione.
+- **Visualizza dashboard** (`UC08`): lo studente autenticato può visualizzare la dashboard con dati aggregati sui progetti, le valutazioni medie dei docenti e le statistiche di partecipazione.
+
 ### 6.3 Relazioni tra casi d'uso: include ed extend
 
 Nel diagramma dei casi d'uso si usano due tipi di relazioni aggiuntive:
@@ -167,8 +166,6 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 | `HRanalytics`    | Repository esterno integrato nel progetto come dashboard analitica, collegato allo stesso database MySQL.                          |
 
 ---
-
-## 8. Pianificazione e milestone
 
 ## 8. Pianificazione e milestone
 
@@ -225,11 +222,11 @@ Si definiscono i requisiti funzionali e non funzionali del sistema, si produce l
 
 #### Fase 2 — Backend *(giorni 5–17)*
 
-Si costruisce l'intera applicazione web Flask organizzata in Blueprint distinti per area funzionale (autenticazione, progetti, feedback). Si implementano i template Jinja2 per tutte le pagine (registrazione, login, lista progetti, dettaglio progetto, dashboard docente). Si scrivono le query SQL per tutte le operazioni CRUD, l'autenticazione con gestione dei ruoli studente/docente tramite sessioni Flask, il sistema di iscrizione ai progetti e il modulo di feedback con valutazione a stelle (1–5) e commento testuale.
+Si costruisce l'intera applicazione web Flask organizzata in Blueprint distinti per area funzionale (autenticazione, progetti, feedback). Si implementano i template Jinja2 per tutte le pagine (registrazione, login, lista progetti, dettaglio progetto, dashboard studente). Si scrivono le query SQL per tutte le operazioni CRUD, l'autenticazione con gestione dei ruoli studente/docente tramite sessioni Flask, il sistema di iscrizione ai progetti e il modulo di feedback con valutazione a stelle (1–5) e commento testuale.
 
-#### Fase 3 — Analytcs *(giorni 18–23)*
+#### Fase 3 — Analytics *(giorni 18–23)*
 
-Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stesso schema MySQL di SchoolHRM invece dei dataset generici originali. Si adattano le query e i modelli di dati della dashboard alle entità del progetto (studenti, docenti, progetti, feedback). La dashboard viene poi integrata come sezione dedicata nell'applicazione Flask, accessibile ai docenti autenticati, mostrando metriche aggregate come andamento delle valutazioni nel tempo, distribuzione dei feedback per progetto e tasso di partecipazione degli studenti.
+Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stesso schema MySQL di SchoolHRM invece dei dataset generici originali. Si adattano le query e i modelli di dati della dashboard alle entità del progetto (studenti, docenti, progetti, feedback). La dashboard viene poi integrata come sezione dedicata nell'applicazione Flask, accessibile agli studenti autenticati, mostrando metriche aggregate come andamento delle valutazioni nel tempo, distribuzione dei feedback per progetto e tasso di partecipazione degli studenti.
 
 #### Fase 4 — Consegna *(giorni 24-31)*
 

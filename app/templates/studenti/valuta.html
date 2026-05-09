@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Valuta docente — SchoolHRM{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h2>Valuta il docente</h2>
+  <p style="color:#555;margin-bottom:1.2rem">
+    Progetto: <strong>{{ progetto.titolo }}</strong><br>
+    Docente: <strong>{{ progetto.nome_docente }}</strong>
+  </p>
+
+  <form method="post">
+    <div class="form-group">
+      <label>Voto (1–5 stelle)</label>
+      <div class="star-rating">
+        {% for i in [5, 4, 3, 2, 1] %}
+          <input type="radio" id="stella{{ i }}" name="stelle" value="{{ i }}"
+            {% if feedback and feedback.stelle == i %}checked{% endif %} required>
+          <label for="stella{{ i }}">★</label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="commento">Commento (opzionale)</label>
+      <textarea id="commento" name="commento" rows="3">{{ feedback.commento if feedback else '' }}</textarea>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-success">
+        {{ 'Aggiorna valutazione' if feedback else 'Invia valutazione' }}
+      </button>
+      <a href="{{ url_for('studenti.dashboard') }}" class="btn btn-secondary">Annulla</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

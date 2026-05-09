@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SchoolHRM{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="navbar">
+    <a class="brand" href="{{ url_for('main.index') }}">SchoolHRM</a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('main.lista_progetti') }}">Progetti</a></li>
+      {% if g.user %}
+        {% if g.user.ruolo == 'studente' %}
+          <li><a href="{{ url_for('studenti.dashboard') }}">Area Personale</a></li>
+        {% elif g.user.ruolo == 'docente' %}
+          <li><a href="{{ url_for('docenti.crea_progetto') }}">+ Progetto</a></li>
+          <li><a href="{{ url_for('docenti.area_personale') }}">Area Personale</a></li>
+        {% endif %}
+        <li><span class="user-info">{{ g.user.nome }} ({{ g.user.ruolo }})</span></li>
+        <li><a href="{{ url_for('auth.logout') }}">Esci</a></li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+        <li><a href="{{ url_for('auth.registra') }}">Registrati</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

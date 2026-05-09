@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Area Personale — SchoolHRM{% endblock %}
+
+{% macro stato_badge(stato) %}
+  {% if stato == 'disponibile' %}<span class="badge badge-disponibile">Disponibile</span>
+  {% elif stato == 'in_corso' %}<span class="badge badge-in-corso">In corso</span>
+  {% else %}<span class="badge badge-completato">Completato</span>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Area Personale</h1>
+  <a href="{{ url_for('docenti.crea_progetto') }}" class="btn btn-primary">+ Nuovo progetto</a>
+</div>
+
+{% if progetti %}
+  <div class="stats-bar">
+    <div class="stat-box">
+      <div class="stat-num">{{ progetti|length }}</div>
+      <div class="stat-label">Progetti creati</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">{{ progetti|sum(attribute='num_studenti') }}</div>
+      <div class="stat-label">Studenti totali</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">{{ progetti|sum(attribute='num_feedback') }}</div>
+      <div class="stat-label">Valutazioni ricevute</div>
+    </div>
+    {% set media_globale = progetti|selectattr('media_stelle')|map(attribute='media_stelle')|list %}
+    {% if media_globale %}
+      <div class="stat-box">
+        <div class="stat-num"><span class="stelle">★</span> {{ (media_globale|sum / media_globale|length)|round(1) }}</div>
+        <div class="stat-label">Media globale</div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% for p in progetti %}
+    <div class="card" style="margin-bottom:1.5rem">
+
+      {# intestazione progetto #}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <h2 style="margin:0 0 .2rem">{{ p.titolo }}</h2>
+          <div class="card-meta">Creato il {{ p.created_at[:10] if p.created_at else '—' }}</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          {{ stato_badge(p.stato) }}
+          <a href="{{ url_for('docenti.modifica_progetto', id=p.id) }}" class="btn btn-primary btn-sm">Modifica</a>
+          {% if p.stato == 'disponibile' and p.num_studenti == 0 %}
+            <form method="post" action="{{ url_for('docenti.elimina_progetto', id=p.id) }}"
+                  style="display:inline" onsubmit="return confirm('Eliminare «{{ p.titolo }}»?')">
+              <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <p style="margin:.8rem 0;color:#555">{{ p.descrizione or 'Nessuna descrizione.' }}</p>
+
+      {# mini statistiche progetto #}
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:.5rem 0 1rem;font-size:.9rem;color:#666">
+        <span>👥 {{ p.num_studenti }} studente{{ 'i' if p.num_studenti != 1 else '' }}</span>
+        <span>💬 {{ p.num_feedback }} valutazion{{ 'i' if p.num_feedback != 1 else 'e' }}</span>
+        {% if p.media_stelle %}
+          <span><span class="stelle">★</span> {{ p.media_stelle|round(1) }} media</span>
+        {% else %}
+          <span>Nessuna valutazione ancora</span>
+        {% endif %}
+      </div>
+
+      {# contributori #}
+      {% set studenti = studenti_map[p.id] %}
+      {% if studenti %}
+        <div style="margin-bottom:1rem">
+          <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:.5rem;font-weight:600">
+            Contributori
+          </div>
+          <div class="contributors">
+            {% for s in studenti %}
+              <div class="contributor-chip">
+                <span class="contributor-avatar">{{ s.nome[0] }}</span>
+                <div class="contributor-info">
+                  <span class="contributor-name">{{ s.nome }}</span>
+                  <div class="progress-wrap" style="margin-top:.2rem">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width:{{ s.progresso }}%"></div>
+                    </div>
+                    <span class="progress-label">{{ s.progresso }}%</span>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <p style="color:#aaa;font-size:.9rem;margin-bottom:1rem">Nessuno studente iscritto ancora.</p>
+      {% endif %}
+
+      {# feedback #}
+      {% set feedbacks = feedback_map[p.id] %}
+      {% if feedbacks %}
+        <div style="border-top:1px solid #eee;padding-top:1rem">
+          <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:.7rem;font-weight:600">
+            Feedback ricevuti
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.6rem">
+            {% for f in feedbacks %}
+              <div class="feedback-row">
+                <div class="feedback-header">
+                  <strong>{{ f.nome_studente }}</strong>
+                  <span class="stelle">{{ '★' * f.stelle }}{{ '☆' * (5 - f.stelle) }}</span>
+                  <span style="color:#aaa;font-size:.8rem">{{ f.created_at[:10] if f.created_at else '' }}</span>
+                </div>
+                {% if f.commento %}
+                  <p class="feedback-commento">"{{ f.commento }}"</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  {% endfor %}
+
+{% else %}
+  <div class="empty">
+    <p>Non hai ancora creato nessun progetto.</p>
+    <a href="{{ url_for('docenti.crea_progetto') }}" class="btn btn-primary" style="margin-top:1rem">
+      Crea il tuo primo progetto
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

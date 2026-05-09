@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — SchoolHRM{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Area Personale</h1>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-box">
+    <div class="stat-num">{{ progetti|length }}</div>
+    <div class="stat-label">Progetti iscritto</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">{{ totale_progetti }}</div>
+    <div class="stat-label">Totale progetti</div>
+  </div>
+</div>
+
+<h2 style="margin-bottom:1rem">I miei progetti</h2>
+{% if progetti %}
+  {% for p in progetti %}
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.3rem">
+        <h3 style="margin:0">
+          <a href="{{ url_for('main.dettaglio_progetto', id=p.id) }}" style="color:inherit;text-decoration:none">
+            {{ p.titolo }}
+          </a>
+        </h3>
+        {% if p.stato == 'disponibile' %}
+          <span class="badge badge-disponibile">Disponibile</span>
+        {% elif p.stato == 'in_corso' %}
+          <span class="badge badge-in-corso">In corso</span>
+        {% else %}
+          <span class="badge badge-completato">Completato</span>
+        {% endif %}
+      </div>
+      <div class="card-meta">Docente: {{ p.nome_docente }}</div>
+
+      <div style="margin:1rem 0 .5rem">
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:{{ p.progresso }}%"></div>
+          </div>
+          <span class="progress-label">{{ p.progresso }}%</span>
+        </div>
+        {% if p.note %}
+          <p style="color:#666;font-size:.9rem;margin-top:.4rem;font-style:italic">"{{ p.note }}"</p>
+        {% endif %}
+      </div>
+
+      <form method="post" action="{{ url_for('studenti.aggiorna_progresso', progetto_id=p.id) }}"
+            style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end;margin-top:.8rem">
+        <div style="flex:1;min-width:180px">
+          <label style="font-size:.85rem;color:#555;display:block;margin-bottom:.3rem">
+            Avanzamento: <strong id="label-{{ p.id }}">{{ p.progresso }}%</strong>
+          </label>
+          <input type="range" name="progresso" min="0" max="100" value="{{ p.progresso }}"
+                 oninput="document.getElementById('label-{{ p.id }}').textContent=this.value+'%'"
+                 style="width:100%">
+        </div>
+        <div style="flex:2;min-width:200px">
+          <label style="font-size:.85rem;color:#555;display:block;margin-bottom:.3rem">Note</label>
+          <input type="text" name="note" value="{{ p.note or '' }}"
+                 placeholder="Aggiungi un commento sul tuo lavoro…"
+                 style="width:100%;padding:.4rem .6rem;border:1px solid #ddd;border-radius:6px;font-size:.9rem">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end">Salva</button>
+      </form>
+
+      <div class="actions" style="margin-top:.8rem">
+        <a href="{{ url_for('studenti.valuta', progetto_id=p.id) }}" class="btn btn-success btn-sm">
+          Valuta docente
+        </a>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">
+    <p>Non sei ancora iscritto a nessun progetto.
+       <a href="{{ url_for('main.lista_progetti') }}">Sfoglia i progetti</a>.
+    </p>
+  </div>
+{% endif %}
+
+<h2 style="margin:2rem 0 1rem">Valutazioni medie docenti</h2>
+{% if stats_docenti %}
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>Docente</th><th>Media stelle</th><th>Valutazioni</th></tr>
+      </thead>
+      <tbody>
+        {% for s in stats_docenti %}
+          <tr>
+            <td>{{ s.nome_docente }}</td>
+            <td><span class="stelle">★</span> {{ (s.media or 0)|round(1) }}</td>
+            <td>{{ s.totale }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty"><p>Nessuna valutazione disponibile ancora.</p></div>
+{% endif %}
+{% endblock %}

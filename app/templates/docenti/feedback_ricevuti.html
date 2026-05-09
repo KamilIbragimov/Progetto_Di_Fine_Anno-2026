@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Feedback ricevuti — SchoolHRM{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Feedback ricevuti</h1>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-box">
+    <div class="stat-num">
+      <span class="stelle">★</span> {{ (stats.media or 0)|round(1) }}
+    </div>
+    <div class="stat-label">Media stelle</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">{{ stats.totale or 0 }}</div>
+    <div class="stat-label">Valutazioni totali</div>
+  </div>
+</div>
+
+{% if feedbacks %}
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Studente</th>
+          <th>Progetto</th>
+          <th>Stelle</th>
+          <th>Commento</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in feedbacks %}
+          <tr>
+            <td>{{ f.nome_studente }}</td>
+            <td>{{ f.titolo_progetto }}</td>
+            <td><span class="stelle">{{ '★' * f.stelle }}{{ '☆' * (5 - f.stelle) }}</span></td>
+            <td>{{ f.commento or '—' }}</td>
+            <td>{{ f.created_at.strftime('%d/%m/%Y') if f.created_at else '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty"><p>Non hai ancora ricevuto valutazioni.</p></div>
+{% endif %}
+{% endblock %}
