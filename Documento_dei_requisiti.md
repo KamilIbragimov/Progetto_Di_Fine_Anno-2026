@@ -144,10 +144,7 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 
 ### 6.4 Diagramma dei casi d'uso
 
-
-
 ![Diagramma dei casi d'uso](assets/usecase.png)
-
 
 ## 7. Glossario dei termini
 
@@ -176,12 +173,12 @@ Il progetto si articola in quattro fasi principali:
 - **Analytics**: rimodellazione del repository HRanalytics per adattarlo allo schema MySQL del progetto e integrazione nella piattaforma.
 - **Consegna**: test, correzione bug, documentazione, configurazione Gunicorn, deploy su Render e hosting database su Railway.
 
-| Giorni | Attività |
-|---|---|
-| 1–4 | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + MySQL |
-| 5–17 | Backend: Blueprints, templates Jinja2, autenticazione con ruoli, CRUD progetti, feedback |
-| 18–23 | Analytics: refactor HRanalytics, adattamento schema MySQL, integrazione dashboard |
-| 24–31 | Consegna: test, bug fix, documentazione, deploy su Render, database MySQL su Railway |
+| Giorni | Attività                                                                                |
+| ------ | ---------------------------------------------------------------------------------------- |
+| 1–4   | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + MySQL    |
+| 5–17  | Backend: Blueprints, templates Jinja2, autenticazione con ruoli, CRUD progetti, feedback |
+| 18–23 | Analytics: refactor HRanalytics, adattamento schema MySQL, integrazione dashboard        |
+| 24–31 | Consegna: test, bug fix, documentazione, deploy su Render, database MySQL su Railway     |
 
 ### 8.1 Gantt semplificato
 
@@ -213,8 +210,8 @@ gantt
     Deploy Finale           :d1, 2026-05-29, 2d
     Fine Progetto           :milestone, 2026-05-31, 0d
 ```
-### 8.2 Descrizione delle fasi
 
+### 8.2 Descrizione delle fasi
 
 #### Fase 1 — Analisi *(giorni 1–4)*
 
@@ -232,3 +229,28 @@ Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stes
 
 Si esegue il testing manuale di tutti i flussi principali (registrazione, login, CRUD progetti, iscrizione, feedback, dashboard analitica). Si correggono i bug emersi, si verifica la sicurezza dei form (protezione CSRF, validazione input lato server), si ottimizzano le query SQL e si completa la documentazione tecnica: README con istruzioni di installazione, struttura del progetto e variabili d'ambiente richieste.
 Si configura **Gunicorn** come server WSGI e si prepara il `Procfile` per Render. Il repository GitHub viene collegato a **Render** per il deploy automatico ad ogni `git push` sul branch `main`. Il database MySQL viene creato su **Railway** e le credenziali vengono inserite come variabili d'ambiente su Render (mai hardcodate nel codice). Si esegue un collaudo finale sull'ambiente di produzione verificando tutti i flussi end-to-end prima della consegna.
+
+---
+
+## 9. Entità e relazioni (schema ER)
+
+Di seguito lo schema concettuale del database di SchoolHRM. Il diagramma mostra le quattro entità principali e i loro legami.
+
+![Schema ER — SchoolHRM](assets/er.png)
+
+**Note sulle relazioni:**
+
+- Un `UTENTE` con ruolo `docente` può creare zero o più `PROGETTO`.
+- Un `UTENTE` con ruolo `studente` si iscrive ai progetti tramite la tabella `ISCRIZIONE`, che tiene traccia anche dell'avanzamento (0–100%) e di eventuali note.
+- Un `UTENTE` con ruolo `studente` può lasciare al massimo un `FEEDBACK` per progetto (vincolo `UNIQUE(studente_id, progetto_id)`). Il campo `docente_id` in `FEEDBACK` è una seconda chiave esterna verso `UTENTE` (il docente che lo riceve), non rappresentata come linea separata per evitare ambiguità nel diagramma.
+- Il campo `stato` in `PROGETTO` può assumere i valori `disponibile`, `in_corso` o `completato`; la transizione `disponibile → in_corso` avviene automaticamente alla prima iscrizione.
+
+---
+
+## 10. Diagramma UML delle classi
+
+Di seguito il diagramma delle classi principali del dominio di SchoolHRM. I metodi elencati corrispondono alle operazioni esposte dai repository nel layer di accesso ai dati.
+
+![Diagramma UML delle classi — SchoolHRM](assets/uml.png)
+
+> I repository (`progetto_repository`, `iscrizione_repository`, ecc.) costituiscono il layer di accesso ai dati e non sono rappresentati nel diagramma delle entità, in linea con il pattern di separazione delle responsabilità adottato.

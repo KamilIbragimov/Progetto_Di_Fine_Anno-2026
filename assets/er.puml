@@ -1,0 +1,66 @@
+@startuml er
+
+skinparam linetype ortho
+skinparam shadowing false
+skinparam class {
+    BackgroundColor #FAFAFA
+    BorderColor #555
+    ArrowColor #333
+    FontName Segoe UI
+    FontSize 12
+    AttributeFontSize 11
+}
+skinparam classAttributeIconSize 0
+
+entity UTENTE {
+    * **id** : INT <<PK>>
+    --
+    * nome          : VARCHAR
+    * email         : VARCHAR <<UNIQUE>>
+    * password_hash : VARCHAR
+    * ruolo         : VARCHAR
+    * created_at    : TIMESTAMP
+}
+
+entity PROGETTO {
+    * **id** : INT <<PK>>
+    --
+    * titolo      : VARCHAR
+      descrizione : TEXT
+    * stato       : VARCHAR
+    * docente_id  : INT <<FK>>
+    * created_at  : TIMESTAMP
+}
+
+entity ISCRIZIONE {
+    * **id** : INT <<PK>>
+    --
+    * studente_id  : INT <<FK>>
+    * progetto_id  : INT <<FK>>
+    * progresso    : INT (0–100)
+      note         : TEXT
+    * created_at   : TIMESTAMP
+    ..
+    UNIQUE(studente_id, progetto_id)
+}
+
+entity FEEDBACK {
+    * **id** : INT <<PK>>
+    --
+    * studente_id : INT <<FK>>
+    * docente_id  : INT <<FK>>
+    * progetto_id : INT <<FK>>
+    * stelle      : INT (1–5)
+      commento    : TEXT
+    * created_at  : TIMESTAMP
+    ..
+    UNIQUE(studente_id, progetto_id)
+}
+
+UTENTE    ||--o{ PROGETTO   : "crea"
+UTENTE    ||--o{ ISCRIZIONE : "partecipa"
+PROGETTO  ||--o{ ISCRIZIONE : "include"
+UTENTE    ||--o{ FEEDBACK   : "lascia"
+PROGETTO  ||--o{ FEEDBACK   : "ha"
+
+@enduml

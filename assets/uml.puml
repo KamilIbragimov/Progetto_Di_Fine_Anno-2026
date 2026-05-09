@@ -1,0 +1,76 @@
+@startuml uml
+
+skinparam shadowing false
+skinparam class {
+    BackgroundColor #FAFAFA
+    BorderColor #555
+    ArrowColor #333
+    FontName Segoe UI
+    FontSize 12
+    AttributeFontSize 11
+    HeaderBackgroundColor #E8EEF7
+}
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Utente {
+    +id          : int
+    +nome        : string
+    +email       : string
+    +password_hash : string
+    +ruolo       : string
+    +created_at  : datetime
+    --
+    +registra(nome, email, password, ruolo)
+    +login(email, password)
+    +logout()
+    +isPasswordValida(password) : bool
+}
+
+class Progetto {
+    +id          : int
+    +titolo      : string
+    +descrizione : string
+    +stato       : string
+    +docente_id  : int
+    +created_at  : datetime
+    --
+    +crea(titolo, descrizione, stato, docente_id)
+    +aggiorna(titolo, descrizione, stato)
+    +aggiornaStato(stato)
+    +elimina()
+}
+
+class Iscrizione {
+    +id          : int
+    +studente_id : int
+    +progetto_id : int
+    +progresso   : int
+    +note        : string
+    +created_at  : datetime
+    --
+    +iscrivi(studente_id, progetto_id)
+    +aggiornaProgresso(progresso, note)
+    +isIscritto(studente_id, progetto_id) : bool
+}
+
+class Feedback {
+    +id          : int
+    +studente_id : int
+    +docente_id  : int
+    +progetto_id : int
+    +stelle      : int
+    +commento    : string
+    +created_at  : datetime
+    --
+    +crea(studente_id, docente_id, progetto_id, stelle, commento)
+    +aggiorna(stelle, commento)
+}
+
+Utente    "1" --> "*" Progetto   : crea
+Utente    "1" --> "*" Iscrizione : partecipa
+Progetto  "1" --> "*" Iscrizione : include
+Utente    "1" --> "*" Feedback   : lascia
+Progetto  "1" --> "*" Feedback   : ha
+
+@enduml
