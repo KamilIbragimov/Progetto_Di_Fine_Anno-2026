@@ -14,6 +14,7 @@
       {% if g.user %}
         {% if g.user.ruolo == 'studente' %}
           <li><a href="{{ url_for('studenti.dashboard') }}">Area Personale</a></li>
+          <li><a href="{{ url_for('studenti.launch_dashboard') }}" target="_blank" rel="noopener" title="Apri la dashboard analitica live (la avvia automaticamente)">📊 Dashboard</a></li>
         {% elif g.user.ruolo == 'docente' %}
           <li><a href="{{ url_for('docenti.crea_progetto') }}">+ Progetto</a></li>
           <li><a href="{{ url_for('docenti.area_personale') }}">Area Personale</a></li>

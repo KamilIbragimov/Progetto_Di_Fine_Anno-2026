@@ -1,3 +1,9 @@
+import os
+import socket
+import subprocess
+import sys
+import time
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, g
 from app.auth import ruolo_required
 from app.repositories import (
@@ -7,6 +13,63 @@ from app.repositories import (
 )
 
 bp = Blueprint('studenti', __name__, url_prefix='/studenti')
+
+STREAMLIT_PORT = 8501
+HRANALYTICS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _streamlit_is_up():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(0.3)
+    try:
+        s.connect(('127.0.0.1', STREAMLIT_PORT))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+
+def _launch_streamlit():
+    flags = 0
+    if os.name == 'nt':
+        # CREATE_NEW_PROCESS_GROUP: streamlit non muore se Flask riceve Ctrl+C
+        # CREATE_NO_WINDOW: nessuna finestra cmd visibile
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
+    subprocess.Popen(
+        [
+            sys.executable, '-m', 'streamlit', 'run', 'app.py',
+            '--server.headless=true',
+            '--server.port', str(STREAMLIT_PORT),
+            '--browser.gatherUsageStats=false',
+        ],
+        cwd=HRANALYTICS_DIR,
+        creationflags=flags,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
+@bp.route('/launch-dashboard')
+@ruolo_required('studente')
+def launch_dashboard():
+    dashboard_url = f'http://localhost:{STREAMLIT_PORT}'
+    if _streamlit_is_up():
+        return redirect(dashboard_url)
+    if not os.path.isdir(HRANALYTICS_DIR):
+        flash(f'Cartella dashboard non trovata: {HRANALYTICS_DIR}', 'danger')
+        return redirect(url_for('studenti.dashboard'))
+    try:
+        _launch_streamlit()
+    except Exception as e:
+        flash(f'Impossibile avviare la dashboard: {e}', 'danger')
+        return redirect(url_for('studenti.dashboard'))
+    for _ in range(30):
+        time.sleep(0.5)
+        if _streamlit_is_up():
+            return redirect(dashboard_url)
+    flash('La dashboard non risponde dopo 15s. Riprova tra qualche secondo.', 'warning')
+    return redirect(url_for('studenti.dashboard'))
 
 
 @bp.route('/dashboard')
