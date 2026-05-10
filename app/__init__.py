@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, render_template
 from .db import init_app as init_db
 from . import auth, main, studenti, docenti
 
@@ -21,5 +21,13 @@ def create_app():
     app.register_blueprint(main.bp)
     app.register_blueprint(studenti.bp)
     app.register_blueprint(docenti.bp)
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template('404.html'), 403
 
     return app

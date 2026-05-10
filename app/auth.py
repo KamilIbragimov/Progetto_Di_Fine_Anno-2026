@@ -53,7 +53,9 @@ def login():
         else:
             session.clear()
             session['user_id'] = utente['id']
-            return redirect(url_for('main.index'))
+            if utente['ruolo'] == 'studente':
+                return redirect(url_for('studenti.dashboard'))
+            return redirect(url_for('docenti.area_personale'))
 
     return render_template('auth/login.html')
 

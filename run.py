@@ -12,6 +12,6 @@ app = create_app()
 if __name__ == '__main__':
     if not os.path.exists(os.path.join('instance', 'schoolhrm.sqlite')):
         print("Database non trovato! Esegui prima: python setup_db.py")
-    else:
-        print("Avvio server...")
+        exit(1)
+    print("Avvio server...")
     app.run(debug=True)

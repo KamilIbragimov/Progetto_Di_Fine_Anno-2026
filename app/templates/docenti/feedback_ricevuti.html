@@ -37,7 +37,7 @@
             <td>{{ f.titolo_progetto }}</td>
             <td><span class="stelle">{{ '★' * f.stelle }}{{ '☆' * (5 - f.stelle) }}</span></td>
             <td>{{ f.commento or '—' }}</td>
-            <td>{{ f.created_at.strftime('%d/%m/%Y') if f.created_at else '—' }}</td>
+            <td>{{ f.created_at[8:10] ~ '/' ~ f.created_at[5:7] ~ '/' ~ f.created_at[:4] if f.created_at else '—' }}</td>
           </tr>
         {% endfor %}
       </tbody>
