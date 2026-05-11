@@ -87,8 +87,6 @@ def elimina_progetto(id):
         flash('Progetto non trovato o accesso non autorizzato.', 'danger')
     elif progetto['stato'] != 'disponibile':
         flash('Non puoi eliminare un progetto già avviato o completato.', 'danger')
-    elif ir.get_studenti_iscritti(id):
-        flash('Non puoi eliminare un progetto a cui si sono già iscritti degli studenti.', 'danger')
     else:
         pr.elimina_progetto(id)
         flash('Progetto eliminato.', 'success')
