@@ -66,16 +66,6 @@ def logout():
     return redirect(url_for('main.index'))
 
 
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped(**kwargs):
-        if g.user is None:
-            flash('Devi effettuare il login.', 'warning')
-            return redirect(url_for('auth.login'))
-        return view(**kwargs)
-    return wrapped
-
-
 def ruolo_required(ruolo):
     def decorator(view):
         @functools.wraps(view)

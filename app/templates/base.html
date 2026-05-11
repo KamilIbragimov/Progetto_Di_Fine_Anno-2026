@@ -18,6 +18,7 @@
         {% elif g.user.ruolo == 'docente' %}
           <li><a href="{{ url_for('docenti.crea_progetto') }}">+ Progetto</a></li>
           <li><a href="{{ url_for('docenti.area_personale') }}">Area Personale</a></li>
+          <li><a href="{{ url_for('docenti.feedback_ricevuti') }}">Feedback</a></li>
         {% endif %}
         <li><span class="user-info">{{ g.user.nome }} ({{ g.user.ruolo }})</span></li>
         <li><a href="{{ url_for('auth.logout') }}">Esci</a></li>

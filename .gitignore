@@ -1,5 +1,6 @@
 
 .claude/
+hranalytics_export.csv
 
 # Python
 __pycache__/
