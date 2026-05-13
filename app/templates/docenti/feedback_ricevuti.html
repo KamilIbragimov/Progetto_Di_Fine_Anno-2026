@@ -8,9 +8,15 @@
 <div class="stats-bar">
   <div class="stat-box">
     <div class="stat-num">
-      <span class="stelle">★</span> {{ (stats.media or 0)|round(1) }}
+      <span class="stelle">★</span> {{ (stats.media_docente or 0)|round(1) }}
     </div>
-    <div class="stat-label">Media stelle</div>
+    <div class="stat-label">Media docente</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">
+      <span class="stelle">★</span> {{ (stats.media_progetto or 0)|round(1) }}
+    </div>
+    <div class="stat-label">Media progetti</div>
   </div>
   <div class="stat-box">
     <div class="stat-num">{{ stats.totale or 0 }}</div>
@@ -25,7 +31,8 @@
         <tr>
           <th>Studente</th>
           <th>Progetto</th>
-          <th>Stelle</th>
+          <th>Voto progetto</th>
+          <th>Voto docente</th>
           <th>Commento</th>
           <th>Data</th>
         </tr>
@@ -35,7 +42,8 @@
           <tr>
             <td>{{ f.nome_studente }}</td>
             <td>{{ f.titolo_progetto }}</td>
-            <td><span class="stelle">{{ '★' * f.stelle }}{{ '☆' * (5 - f.stelle) }}</span></td>
+            <td><span class="stelle">{{ '★' * f.stelle_progetto }}{{ '☆' * (5 - f.stelle_progetto) }}</span></td>
+            <td><span class="stelle">{{ '★' * f.stelle_docente }}{{ '☆' * (5 - f.stelle_docente) }}</span></td>
             <td>{{ f.commento or '—' }}</td>
             <td>{{ f.created_at[8:10] ~ '/' ~ f.created_at[5:7] ~ '/' ~ f.created_at[:4] if f.created_at else '—' }}</td>
           </tr>

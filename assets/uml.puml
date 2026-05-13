@@ -55,16 +55,17 @@ class Iscrizione {
 }
 
 class Feedback {
-    +id          : int
-    +studente_id : int
-    +docente_id  : int
-    +progetto_id : int
-    +stelle      : int
-    +commento    : string
-    +created_at  : datetime
+    +id              : int
+    +studente_id     : int
+    +docente_id      : int
+    +progetto_id     : int
+    +stelle_docente  : int
+    +stelle_progetto : int
+    +commento        : string
+    +created_at      : datetime
     --
-    +crea(studente_id, docente_id, progetto_id, stelle, commento)
-    +aggiorna(stelle, commento)
+    +crea(studente_id, docente_id, progetto_id, stelle_docente, stelle_progetto, commento)
+    +aggiorna(stelle_docente, stelle_progetto, commento)
 }
 
 Utente    "1" --> "*" Progetto   : crea

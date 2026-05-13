@@ -24,7 +24,7 @@
         {% if is_iscritto %}
           <span class="badge badge-in-corso" style="padding:.35rem .8rem;font-size:.85rem">Già iscritto</span>
           <a href="{{ url_for('studenti.valuta', progetto_id=progetto.id) }}" class="btn btn-success btn-sm">
-            Valuta docente
+            Valuta progetto
           </a>
         {% elif progetto.stato != 'completato' %}
           <form method="post" action="{{ url_for('studenti.iscrivi', progetto_id=progetto.id) }}" style="display:inline">

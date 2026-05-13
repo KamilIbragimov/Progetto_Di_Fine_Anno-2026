@@ -5,6 +5,4 @@ gunicorn>=20.1.0
 streamlit
 pandas
 plotly
-seaborn
-matplotlib
 scikit-learn

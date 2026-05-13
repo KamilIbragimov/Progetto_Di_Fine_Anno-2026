@@ -69,8 +69,9 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 2. **Gestione progetti (CRUD)**: i docenti possono creare, leggere, aggiornare ed eliminare i propri progetti.
 3. **Visualizzazione progetti**: tutti gli utenti (anche non autenticati) possono visualizzare l'elenco dei progetti disponibili.
 4. **Svolgimento progetti**: gli studenti autenticati possono iscriversi e svolgere i progetti.
-5. **Valutazione docenti**: gli studenti autenticati possono lasciare un feedback (stelle 1–5 e testo) ai docenti che gestiscono i progetti.
-6. **Visualizzazione feedback**: i docenti autenticati possono consultare i feedback ricevuti dagli studenti.
+5. **Valutazione docenti**: gli studenti autenticati possono lasciare un voto in stelle (1–5) al docente che gestisce il progetto.
+6. **Valutazione progetti**: gli studenti autenticati possono lasciare un voto in stelle (1–5) e un commento testuale al progetto svolto.
+7. **Visualizzazione feedback**: i docenti autenticati possono consultare i feedback ricevuti dagli studenti.
 
 ### 4.2 User stories
 
@@ -78,7 +79,8 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 - Come **studente**, voglio registrarmi e autenticarmi per accedere alle funzionalità della piattaforma.
 - Come **studente autenticato**, voglio visualizzare la dashboard per consultare i dati aggregati sui progetti, le valutazioni medie dei docenti e le statistiche di partecipazione.
 - Come **studente autenticato**, voglio iscrivermi a un progetto per poterlo svolgere.
-- Come **studente autenticato**, voglio valutare un docente con stelle e un commento per condividere la mia esperienza.
+- Come **studente autenticato**, voglio valutare il docente che ha gestito un progetto a cui sono iscritto.
+- Come **studente autenticato**, voglio valutare con stelle e un commento il progetto che ho svolto per condividere la mia esperienza.
 - Come **docente**, voglio registrarmi e autenticarmi per gestire i miei progetti.
 - Come **docente autenticato**, voglio creare un nuovo progetto per renderlo disponibile agli studenti.
 - Come **docente autenticato**, voglio modificare o eliminare un mio progetto per mantenerlo aggiornato.
@@ -113,17 +115,19 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 | UC06 | Valuta docente               |
 | UC07 | Visualizza feedback ricevuti |
 | UC08 | Visualizza dashboard         |
+| UC09 | Valuta progetto              |
 
 ### 6.2 Descrizione semplificata dei casi d'uso
 
 - **Registrazione** (`UC01`): il visitatore compila il form con nome, email, password e ruolo (studente o docente); il sistema crea l'account, applica l'hashing alla password e apre la sessione.
 - **Login** (`UC02`): l'utente inserisce email e password; il sistema verifica le credenziali e apre la sessione mantenendo il ruolo associato all'account.
 - **Visualizza progetti** (`UC03`): qualsiasi utente, anche non autenticato, può visualizzare l'elenco dei progetti disponibili con titolo, descrizione e nome del docente responsabile.
-- **Gestione progetti CRUD** (`UC04`): il docente autenticato può creare un nuovo progetto, modificarne i dettagli, eliminarlo o visualizzarne il dettaglio. Questa operazione include sempre `UC03`.
+- **Gestione progetti CRUD** (`UC04`): il docente autenticato può creare un nuovo progetto, modificarne i dettagli, eliminarlo o visualizzarne il dettaglio. Questa operazione estende `UC03` perché può essere avviata anche dalla lista dei progetti.
 - **Svolgi progetto** (`UC05`): lo studente autenticato si iscrive a un progetto tra quelli disponibili e ne traccia lo svolgimento sulla propria dashboard personale.
-- **Valuta docente** (`UC06`): lo studente autenticato assegna una valutazione in stelle (1–5) e un commento testuale al docente responsabile di un progetto. Questa operazione estende `UC05`.
-- **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti.
+- **Valuta docente** (`UC06`): lo studente autenticato assegna un voto in stelle (1–5) al docente responsabile di un progetto a cui è iscritto. La valutazione del docente è inclusa nella stessa azione di valutazione del progetto.
+- **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti. Questa operazione estende `UC03` perché il docente raggiunge i feedback partendo dalla vista progetti.
 - **Visualizza dashboard** (`UC08`): lo studente autenticato può visualizzare la dashboard con dati aggregati sui progetti, le valutazioni medie dei docenti e le statistiche di partecipazione.
+- **Valuta progetto** (`UC09`): lo studente autenticato assegna un voto in stelle (1–5) e un commento testuale al progetto svolto. Questa operazione include `UC05` perché per valutare un progetto è necessario averlo iniziato (iscrizione).
 
 ### 6.3 Relazioni tra casi d'uso: include ed extend
 
@@ -136,11 +140,12 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 
 **Relazioni `<<include>>`:**
 
-- `UC04 Gestione CRUD` include `UC03 Visualizza progetti`: per gestire un progetto è sempre necessario prima visualizzarlo.
+- `UC09 Valuta progetto` include `UC05 Svolgi progetto`: per valutare un progetto è necessario averlo iniziato, quindi lo svolgimento è un comportamento sempre presente nella valutazione. La stessa azione raccoglie anche il voto al docente (`UC06`).
 
 **Relazioni `<<extend>>`:**
 
-- `UC06 Valuta docente` estende `UC05 Svolgi progetto`: la valutazione è un'azione opzionale che lo studente può compiere dopo aver svolto un progetto, non è obbligatoria.
+- `UC04 Gestione CRUD` estende `UC03 Visualizza progetti`: la gestione di un progetto è un'azione opzionale che il docente può avviare a partire dalla lista dei progetti.
+- `UC07 Visualizza feedback` estende `UC03 Visualizza progetti`: la consultazione dei feedback è un'azione opzionale che il docente può raggiungere a partire dalla lista dei progetti.
 
 ### 6.4 Diagramma dei casi d'uso
 
@@ -151,9 +156,9 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 | Termine            | Definizione                                                                                                                        |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `Progetto`       | Attività didattica creata da un docente, con titolo e descrizione, a cui gli studenti possono iscriversi e partecipare.           |
-| `Feedback`       | Valutazione lasciata da uno studente a un docente, composta da un voto in stelle (1–5) e un commento testuale opzionale.          |
+| `Feedback`       | Valutazione lasciata da uno studente, composta da due voti in stelle (1–5 per il docente e 1–5 per il progetto) e un commento testuale opzionale. |
 | `Stelle`         | Unità di misura della valutazione nel sistema di feedback, su scala da 1 (minimo) a 5 (massimo).                                  |
-| `Studente`       | Utente registrato con ruolo studente; può visualizzare e svolgere progetti, e valutare i docenti.                                 |
+| `Studente`       | Utente registrato con ruolo studente; può visualizzare e svolgere progetti, valutare i docenti e i progetti svolti.               |
 | `Docente`        | Utente registrato con ruolo docente; può creare e gestire progetti tramite CRUD e consultare i feedback ricevuti.                 |
 | `Visitatore`     | Utente non autenticato; può solo visualizzare l'elenco dei progetti pubblici.                                                     |
 | `Autenticazione` | Processo di registrazione e login che permette l'accesso alle funzionalità protette della piattaforma.                            |
@@ -242,7 +247,7 @@ Di seguito lo schema concettuale del database di SchoolHRM. Il diagramma mostra 
 
 - Un `UTENTE` con ruolo `docente` può creare zero o più `PROGETTO`.
 - Un `UTENTE` con ruolo `studente` si iscrive ai progetti tramite la tabella `ISCRIZIONE`, che tiene traccia anche dell'avanzamento (0–100%) e di eventuali note.
-- Un `UTENTE` con ruolo `studente` può lasciare al massimo un `FEEDBACK` per progetto (vincolo `UNIQUE(studente_id, progetto_id)`). Il campo `docente_id` in `FEEDBACK` è una seconda chiave esterna verso `UTENTE` (il docente che lo riceve), non rappresentata come linea separata per evitare ambiguità nel diagramma.
+- Un `UTENTE` con ruolo `studente` può lasciare al massimo un `FEEDBACK` per progetto (vincolo `UNIQUE(studente_id, progetto_id)`). Il singolo record contiene sia la valutazione del docente (`stelle_docente`) sia quella del progetto (`stelle_progetto`), entrambe in scala 1–5, oltre a un commento opzionale. Il campo `docente_id` in `FEEDBACK` è una seconda chiave esterna verso `UTENTE` (il docente che riceve la valutazione), non rappresentata come linea separata per evitare ambiguità nel diagramma.
 - Il campo `stato` in `PROGETTO` può assumere i valori `disponibile`, `in_corso` o `completato`; la transizione `disponibile → in_corso` avviene automaticamente alla prima iscrizione.
 
 ---

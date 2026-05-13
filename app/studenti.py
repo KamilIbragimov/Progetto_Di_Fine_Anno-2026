@@ -131,20 +131,22 @@ def valuta(progetto_id):
         return render_template('404.html'), 404
 
     if not ir.is_iscritto(g.user['id'], progetto_id):
-        flash('Devi essere iscritto al progetto per valutare il docente.', 'warning')
+        flash('Devi essere iscritto al progetto per lasciare una valutazione.', 'warning')
         return redirect(url_for('main.dettaglio_progetto', id=progetto_id))
 
     feedback_esistente = fr.get_feedback_studente_progetto(g.user['id'], progetto_id)
 
     if request.method == 'POST':
-        stelle   = request.form.get('stelle', type=int)
-        commento = request.form.get('commento', '').strip()
+        stelle_docente  = request.form.get('stelle_docente',  type=int)
+        stelle_progetto = request.form.get('stelle_progetto', type=int)
+        commento        = request.form.get('commento', '').strip()
 
-        if stelle not in range(1, 6):
-            flash('Seleziona un voto da 1 a 5 stelle.', 'danger')
+        if stelle_docente not in range(1, 6) or stelle_progetto not in range(1, 6):
+            flash('Seleziona un voto da 1 a 5 stelle sia per il docente sia per il progetto.', 'danger')
         else:
             fr.crea_feedback(
-                g.user['id'], progetto['docente_id'], progetto_id, stelle, commento
+                g.user['id'], progetto['docente_id'], progetto_id,
+                stelle_docente, stelle_progetto, commento
             )
             flash('Valutazione inviata con successo!', 'success')
             return redirect(url_for('studenti.dashboard'))

@@ -42,8 +42,9 @@ def get_progetti_con_stats(docente_id):
     return get_db().execute(
         '''SELECT p.*,
                   COUNT(DISTINCT i.studente_id) AS num_studenti,
-                  AVG(f.stelle)                 AS media_stelle,
-                  COUNT(DISTINCT f.id)           AS num_feedback
+                  AVG(f.stelle_progetto)        AS media_progetto,
+                  AVG(f.stelle_docente)         AS media_docente,
+                  COUNT(DISTINCT f.id)          AS num_feedback
            FROM progetto p
            LEFT JOIN iscrizione i ON i.progetto_id = p.id
            LEFT JOIN feedback   f ON f.progetto_id = p.id

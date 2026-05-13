@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}Valuta docente — SchoolHRM{% endblock %}
+{% block title %}Valuta progetto e docente — SchoolHRM{% endblock %}
 {% block content %}
 <div class="form-card">
-  <h2>Valuta il docente</h2>
+  <h2>Valuta progetto e docente</h2>
   <p style="color:#555;margin-bottom:1.2rem">
     Progetto: <strong>{{ progetto.titolo }}</strong><br>
     Docente: <strong>{{ progetto.nome_docente }}</strong>
@@ -10,17 +10,29 @@
 
   <form method="post">
     <div class="form-group">
-      <label>Voto (1–5 stelle)</label>
+      <label>Voto per il progetto (1–5 stelle)</label>
       <div class="star-rating">
         {% for i in [5, 4, 3, 2, 1] %}
-          <input type="radio" id="stella{{ i }}" name="stelle" value="{{ i }}"
-            {% if feedback and feedback.stelle == i %}checked{% endif %} required>
-          <label for="stella{{ i }}">★</label>
+          <input type="radio" id="prog{{ i }}" name="stelle_progetto" value="{{ i }}"
+            {% if feedback and feedback.stelle_progetto == i %}checked{% endif %} required>
+          <label for="prog{{ i }}">★</label>
         {% endfor %}
       </div>
     </div>
+
     <div class="form-group">
-      <label for="commento">Commento (opzionale)</label>
+      <label>Voto per il docente (1–5 stelle)</label>
+      <div class="star-rating">
+        {% for i in [5, 4, 3, 2, 1] %}
+          <input type="radio" id="doc{{ i }}" name="stelle_docente" value="{{ i }}"
+            {% if feedback and feedback.stelle_docente == i %}checked{% endif %} required>
+          <label for="doc{{ i }}">★</label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="commento">Commento sul progetto (opzionale)</label>
       <textarea id="commento" name="commento" rows="3">{{ feedback.commento if feedback else '' }}</textarea>
     </div>
     <div class="actions">

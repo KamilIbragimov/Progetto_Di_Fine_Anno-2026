@@ -34,6 +34,7 @@ LABELS_P = {
     'titolo': 'Titolo', 'stato': 'Stato', 'docente': 'Docente',
     'n_studenti': 'Studenti iscritti',
     'progresso_medio': 'Progresso medio (%)', 'n_feedback': 'Feedback ricevuti',
+    'valutazione_progetto': 'Valutazione progetto (★)',
 }
 
 # ── Configurazione pagina ─────────────────────────────────────────────────────
@@ -85,8 +86,8 @@ def load_data():
             u.nome,
             COUNT(DISTINCT p.id)                            AS n_progetti,
             COUNT(DISTINCT f.id)                            AS n_feedback,
-            ROUND(COALESCE(AVG(f.stelle), 0), 2)            AS valutazione_media,
-            CASE WHEN COALESCE(AVG(f.stelle), 0) >= 4.0
+            ROUND(COALESCE(AVG(f.stelle_docente), 0), 2)    AS valutazione_media,
+            CASE WHEN COALESCE(AVG(f.stelle_docente), 0) >= 4.0
                  THEN 1 ELSE 0 END                          AS eccellente
         FROM utente u
         LEFT JOIN progetto p ON p.docente_id = u.id
@@ -100,9 +101,10 @@ def load_data():
             p.titolo,
             p.stato,
             u.nome AS docente,
-            COUNT(DISTINCT i.studente_id)               AS n_studenti,
-            ROUND(COALESCE(AVG(i.progresso), 0), 1)     AS progresso_medio,
-            COUNT(DISTINCT f.id)                        AS n_feedback
+            COUNT(DISTINCT i.studente_id)                   AS n_studenti,
+            ROUND(COALESCE(AVG(i.progresso), 0), 1)         AS progresso_medio,
+            COUNT(DISTINCT f.id)                            AS n_feedback,
+            ROUND(COALESCE(AVG(f.stelle_progetto), 0), 2)   AS valutazione_progetto
         FROM progetto p
         JOIN utente u ON u.id = p.docente_id
         LEFT JOIN iscrizione i ON i.progetto_id = p.id

@@ -36,13 +36,14 @@ CREATE TABLE iscrizione (
 );
 
 CREATE TABLE feedback (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    studente_id INTEGER NOT NULL,
-    docente_id  INTEGER NOT NULL,
-    progetto_id INTEGER NOT NULL,
-    stelle      INTEGER NOT NULL CHECK (stelle BETWEEN 1 AND 5),
-    commento    TEXT,
-    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    studente_id    INTEGER NOT NULL,
+    docente_id     INTEGER NOT NULL,
+    progetto_id    INTEGER NOT NULL,
+    stelle_docente INTEGER NOT NULL CHECK (stelle_docente BETWEEN 1 AND 5),
+    stelle_progetto INTEGER NOT NULL CHECK (stelle_progetto BETWEEN 1 AND 5),
+    commento       TEXT,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (studente_id, progetto_id),
     FOREIGN KEY (studente_id) REFERENCES utente(id) ON DELETE CASCADE,
     FOREIGN KEY (docente_id)  REFERENCES utente(id) ON DELETE CASCADE,
@@ -203,49 +204,49 @@ INSERT INTO iscrizione (studente_id, progetto_id, progresso, note) VALUES
 /* ── FEEDBACK ──
    Gli studenti danno feedback ai docenti dei progetti completati o ben avviati.
    docente_id deriva dal docente del progetto. */
-INSERT INTO feedback (studente_id, docente_id, progetto_id, stelle, commento) VALUES
+INSERT INTO feedback (studente_id, docente_id, progetto_id, stelle_docente, stelle_progetto, commento) VALUES
 /* Algebra Lineare (docente 1) */
-(6,  1, 5, 4, 'Spiegazioni chiare, avrei gradito qualche esempio in più.'),
-(8,  1, 5, 5, 'Ottimo progetto! Il prof. Rossi spiega molto bene.'),
-(10, 1, 5, 5, 'Lezioni eccellenti.'),
-(15, 1, 5, 4, 'Buon corso, molto solido.'),
+(6,  1, 5, 4, 4, 'Spiegazioni chiare, avrei gradito qualche esempio in più.'),
+(8,  1, 5, 5, 5, 'Ottimo progetto! Il prof. Rossi spiega molto bene.'),
+(10, 1, 5, 5, 4, 'Lezioni eccellenti.'),
+(15, 1, 5, 4, 4, 'Buon corso, molto solido.'),
 
 /* Python per Principianti (docente 2) */
-(7,  2, 6, 5, 'Fantastico! Ho imparato Python da zero.'),
-(9,  2, 6, 5, 'La prof.ssa Bianchi è bravissima.'),
-(11, 2, 6, 4, 'Molto buono, qualche esempio in più sarebbe stato utile.'),
-(17, 2, 6, 5, 'Insegnamento eccellente.'),
+(7,  2, 6, 5, 5, 'Fantastico! Ho imparato Python da zero.'),
+(9,  2, 6, 5, 5, 'La prof.ssa Bianchi è bravissima.'),
+(11, 2, 6, 4, 4, 'Molto buono, qualche esempio in più sarebbe stato utile.'),
+(17, 2, 6, 5, 5, 'Insegnamento eccellente.'),
 
 /* Termodinamica (docente 5) */
-(13, 5, 10, 5, 'Cicli termodinamici spiegati con grande chiarezza.'),
-(14, 5, 10, 4, 'Ottimo corso, materiale ben strutturato.'),
-(16, 5, 10, 5, 'Il prof. Galli rende la materia accessibile.'),
+(13, 5, 10, 5, 4, 'Cicli termodinamici spiegati con grande chiarezza.'),
+(14, 5, 10, 4, 4, 'Ottimo corso, materiale ben strutturato.'),
+(16, 5, 10, 5, 5, 'Il prof. Galli rende la materia accessibile.'),
 
 /* Geometria Analitica (docente 3) */
-(15, 3, 11, 4, 'Buon corso, esercizi ben calibrati.'),
-(17, 3, 11, 5, 'Spiegazioni cristalline.'),
-(19, 3, 11, 3, 'Discreto, alcuni argomenti meritavano più tempo.'),
+(15, 3, 11, 4, 4, 'Buon corso, esercizi ben calibrati.'),
+(17, 3, 11, 5, 4, 'Spiegazioni cristalline.'),
+(19, 3, 11, 3, 3, 'Discreto, alcuni argomenti meritavano più tempo.'),
 
 /* Strutture Dati Avanzate (docente 1) */
-(6,  1, 15, 5, 'Argomenti complessi resi semplici.'),
-(10, 1, 15, 5, 'Ottimo come sempre il prof. Rossi.'),
-(11, 1, 15, 4, 'Molto interessante.'),
-(15, 1, 15, 4, 'Buon livello di approfondimento.'),
+(6,  1, 15, 5, 5, 'Argomenti complessi resi semplici.'),
+(10, 1, 15, 5, 4, 'Ottimo come sempre il prof. Rossi.'),
+(11, 1, 15, 4, 5, 'Molto interessante.'),
+(15, 1, 15, 4, 4, 'Buon livello di approfondimento.'),
 
 /* Feedback su progetti in_corso (gli studenti possono valutare anche prima del completamento) */
 /* Sviluppo Web Flask (docente 2) */
-(8,  2, 3, 5, 'Stage molto pratico, sto imparando tantissimo.'),
-(12, 2, 3, 4, 'Buona organizzazione delle lezioni.'),
+(8,  2, 3, 5, 5, 'Stage molto pratico, sto imparando tantissimo.'),
+(12, 2, 3, 4, 5, 'Buona organizzazione delle lezioni.'),
 
 /* Database Relazionali (docente 2) */
-(13, 2, 4, 4, 'Materia ostica resa chiara.'),
+(13, 2, 4, 4, 4, 'Materia ostica resa chiara.'),
 
 /* Machine Learning Basics (docente 4) */
-(10, 4, 7, 5, 'Argomento appassionante, prof preparata.'),
-(15, 4, 7, 4, 'Molto interessante.'),
+(10, 4, 7, 5, 5, 'Argomento appassionante, prof preparata.'),
+(15, 4, 7, 4, 4, 'Molto interessante.'),
 
 /* Probabilità e Statistica (docente 3) */
-(13, 3, 12, 4, 'Buona spiegazione della regressione.'),
+(13, 3, 12, 4, 3, 'Buona spiegazione della regressione.'),
 
 /* Sicurezza Informatica (docente 2) */
-(9,  2, 14, 5, 'Argomenti attualissimi.');
+(9,  2, 14, 5, 5, 'Argomenti attualissimi.');

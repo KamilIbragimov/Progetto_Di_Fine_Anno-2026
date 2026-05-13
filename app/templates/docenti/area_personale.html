@@ -28,11 +28,18 @@
       <div class="stat-num">{{ progetti|sum(attribute='num_feedback') }}</div>
       <div class="stat-label">Valutazioni ricevute</div>
     </div>
-    {% set media_globale = progetti|selectattr('media_stelle')|map(attribute='media_stelle')|list %}
-    {% if media_globale %}
+    {% set medie_doc = progetti|selectattr('media_docente')|map(attribute='media_docente')|list %}
+    {% set medie_pro = progetti|selectattr('media_progetto')|map(attribute='media_progetto')|list %}
+    {% if medie_doc %}
       <div class="stat-box">
-        <div class="stat-num"><span class="stelle">★</span> {{ (media_globale|sum / media_globale|length)|round(1) }}</div>
-        <div class="stat-label">Media globale</div>
+        <div class="stat-num"><span class="stelle">★</span> {{ (medie_doc|sum / medie_doc|length)|round(1) }}</div>
+        <div class="stat-label">Media docente</div>
+      </div>
+    {% endif %}
+    {% if medie_pro %}
+      <div class="stat-box">
+        <div class="stat-num"><span class="stelle">★</span> {{ (medie_pro|sum / medie_pro|length)|round(1) }}</div>
+        <div class="stat-label">Media progetti</div>
       </div>
     {% endif %}
   </div>
@@ -64,8 +71,9 @@
       <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin:.5rem 0 1rem;font-size:.9rem;color:#666">
         <span>👥 {{ p.num_studenti }} studente{{ 'i' if p.num_studenti != 1 else '' }}</span>
         <span>💬 {{ p.num_feedback }} valutazion{{ 'i' if p.num_feedback != 1 else 'e' }}</span>
-        {% if p.media_stelle %}
-          <span><span class="stelle">★</span> {{ p.media_stelle|round(1) }} media</span>
+        {% if p.media_progetto %}
+          <span><span class="stelle">★</span> {{ p.media_progetto|round(1) }} progetto</span>
+          <span><span class="stelle">★</span> {{ p.media_docente|round(1) }} docente</span>
         {% else %}
           <span>Nessuna valutazione ancora</span>
         {% endif %}
@@ -111,8 +119,11 @@
               <div class="feedback-row">
                 <div class="feedback-header">
                   <strong>{{ f.nome_studente }}</strong>
-                  <span class="stelle">{{ '★' * f.stelle }}{{ '☆' * (5 - f.stelle) }}</span>
-                  <span style="color:#aaa;font-size:.8rem">{{ f.created_at[:10] if f.created_at else '' }}</span>
+                  <span title="Voto progetto" class="stelle">{{ '★' * f.stelle_progetto }}{{ '☆' * (5 - f.stelle_progetto) }}</span>
+                  <span style="font-size:.8rem;color:#888">progetto</span>
+                  <span title="Voto docente" class="stelle">{{ '★' * f.stelle_docente }}{{ '☆' * (5 - f.stelle_docente) }}</span>
+                  <span style="font-size:.8rem;color:#888">docente</span>
+                  <span style="color:#aaa;font-size:.8rem;margin-left:auto">{{ f.created_at[:10] if f.created_at else '' }}</span>
                 </div>
                 {% if f.commento %}
                   <p class="feedback-commento">"{{ f.commento }}"</p>

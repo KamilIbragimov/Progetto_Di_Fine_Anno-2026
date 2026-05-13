@@ -10,9 +10,9 @@ skinparam actorFontColor #2C2C2A
 skinparam packageBorderColor #888780
 skinparam packageFontColor #444441
 skinparam ArrowThickness 1
-
-
 skinparam usecaseArrowThickness 2
+skinparam nodesep 50
+skinparam ranksep 60
 
 actor "Visitatore" as Visitatore
 actor "Studente"   as Studente
@@ -24,11 +24,14 @@ Docente  --|> Visitatore
 package "SchoolHRM" {
   usecase "Visualizza progetti"    as UC03
   usecase "Autenticazione"         as UC_auth
-  usecase "Gestione CRUD"          as UC04
-  usecase "Visualizza feedback"    as UC07
+
   usecase "Svolgi progetto"        as UC05
+  usecase "Valuta progetto"        as UC09
   usecase "Valuta docente"         as UC06
   usecase "Visualizza Dashboard"   as UC08
+
+  usecase "Gestione CRUD"          as UC04
+  usecase "Visualizza feedback"    as UC07
 }
 
 Visitatore --> UC03
@@ -36,13 +39,15 @@ Visitatore --> UC03
 Studente   --> UC_auth
 Studente   --> UC05
 Studente   --> UC06
+Studente   --> UC09
 Studente   --> UC08
 
 Docente    --> UC_auth
 Docente    --> UC04
 Docente    --> UC07
 
-UC04 .> UC03 : <<include>>
-UC06 .> UC05 : <<extend>>
+UC04 ..> UC03 : <<extend>>
+UC07 ..> UC03 : <<extend>>
+UC09 ..> UC05 : <<include>>
 
 @enduml

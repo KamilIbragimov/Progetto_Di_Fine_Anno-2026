@@ -37,7 +37,7 @@ entity ISCRIZIONE {
     --
     * studente_id  : INT <<FK>>
     * progetto_id  : INT <<FK>>
-    * progresso    : INT (0–100)
+    * progresso    : INT (0-100)
       note         : TEXT
     * created_at   : TIMESTAMP
     ..
@@ -47,12 +47,13 @@ entity ISCRIZIONE {
 entity FEEDBACK {
     * **id** : INT <<PK>>
     --
-    * studente_id : INT <<FK>>
-    * docente_id  : INT <<FK>>
-    * progetto_id : INT <<FK>>
-    * stelle      : INT (1–5)
-      commento    : TEXT
-    * created_at  : TIMESTAMP
+    * studente_id     : INT <<FK>>
+    * docente_id      : INT <<FK>>
+    * progetto_id     : INT <<FK>>
+    * stelle_docente  : INT (1-5)
+    * stelle_progetto : INT (1-5)
+      commento        : TEXT
+    * created_at      : TIMESTAMP
     ..
     UNIQUE(studente_id, progetto_id)
 }

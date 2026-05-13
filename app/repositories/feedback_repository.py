@@ -1,14 +1,17 @@
 from app.db import get_db
 
 
-def crea_feedback(studente_id, docente_id, progetto_id, stelle, commento):
+def crea_feedback(studente_id, docente_id, progetto_id, stelle_docente, stelle_progetto, commento):
     db = get_db()
     db.execute(
-        '''INSERT INTO feedback (studente_id, docente_id, progetto_id, stelle, commento)
-           VALUES (?, ?, ?, ?, ?)
+        '''INSERT INTO feedback (studente_id, docente_id, progetto_id,
+                                 stelle_docente, stelle_progetto, commento)
+           VALUES (?, ?, ?, ?, ?, ?)
            ON CONFLICT(studente_id, progetto_id)
-           DO UPDATE SET stelle = excluded.stelle, commento = excluded.commento''',
-        (studente_id, docente_id, progetto_id, stelle, commento or None)
+           DO UPDATE SET stelle_docente  = excluded.stelle_docente,
+                         stelle_progetto = excluded.stelle_progetto,
+                         commento        = excluded.commento''',
+        (studente_id, docente_id, progetto_id, stelle_docente, stelle_progetto, commento or None)
     )
     db.commit()
 
@@ -27,7 +30,10 @@ def get_feedback_docente(docente_id):
 
 def get_media_stelle_docente(docente_id):
     return get_db().execute(
-        'SELECT AVG(stelle) AS media, COUNT(*) AS totale FROM feedback WHERE docente_id = ?',
+        '''SELECT AVG(stelle_docente)  AS media_docente,
+                  AVG(stelle_progetto) AS media_progetto,
+                  COUNT(*)             AS totale
+           FROM feedback WHERE docente_id = ?''',
         (docente_id,)
     ).fetchone()
 
@@ -52,7 +58,9 @@ def get_feedback_by_progetto(progetto_id):
 
 def get_statistiche_docenti():
     return get_db().execute(
-        '''SELECT u.nome AS nome_docente, AVG(f.stelle) AS media, COUNT(*) AS totale
+        '''SELECT u.nome                AS nome_docente,
+                  AVG(f.stelle_docente) AS media,
+                  COUNT(*)              AS totale
            FROM feedback f
            JOIN utente u ON f.docente_id = u.id
            GROUP BY f.docente_id, u.nome
