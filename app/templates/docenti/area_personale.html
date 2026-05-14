@@ -50,7 +50,10 @@
       {# intestazione progetto #}
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
         <div>
-          <h2 style="margin:0 0 .2rem">{{ p.titolo }}</h2>
+          <h2 style="margin:0 0 .2rem">
+            <a href="{{ url_for('main.dettaglio_progetto', id=p.id) }}"
+               style="color:inherit;text-decoration:none">{{ p.titolo }}</a>
+          </h2>
           <div class="card-meta">Creato il {{ p.created_at[:10] if p.created_at else '—' }}</div>
         </div>
         <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">

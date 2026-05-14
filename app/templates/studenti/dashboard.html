@@ -52,7 +52,7 @@
             style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end;margin-top:.8rem">
         <div style="flex:1;min-width:180px">
           <label style="font-size:.85rem;color:#555;display:block;margin-bottom:.3rem">
-            Avanzamento: <strong id="label-{{ p.id }}">{{ p.progresso }}%</strong>
+            Progresso: <strong id="label-{{ p.id }}">{{ p.progresso }}%</strong>
           </label>
           <input type="range" name="progresso" min="0" max="100" value="{{ p.progresso }}"
                  oninput="document.getElementById('label-{{ p.id }}').textContent=this.value+'%'"

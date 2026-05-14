@@ -1,3 +1,4 @@
+"""Blueprint / — route pubbliche: home, lista progetti, dettaglio progetto."""
 from flask import Blueprint, render_template, g
 from app.repositories import progetto_repository as pr
 from app.repositories import iscrizione_repository as ir

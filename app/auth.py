@@ -1,3 +1,4 @@
+"""Blueprint /auth — registrazione, login, logout e decorator di accesso per ruolo."""
 import functools
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, g
 from app.repositories import utente_repository as ur
@@ -33,7 +34,7 @@ def registra():
 
         if errore is None:
             ur.crea_utente(nome, email, password, ruolo)
-            flash('Registrazione avvenuta con successo. Effettua il login.', 'success')
+            flash('Registrazione completata. Effettua il login.', 'success')
             return redirect(url_for('auth.login'))
 
         flash(errore, 'danger')

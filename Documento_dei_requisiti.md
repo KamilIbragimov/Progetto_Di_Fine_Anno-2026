@@ -91,13 +91,13 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 ## 5. Requisiti non funzionali
 
 - Le password devono essere protette tramite hashing (`werkzeug.security`).
-- Il backend deve usare **MySQL** come database relazionale, condiviso tra la web app Flask e la dashboard HRanalytics.
+- Il backend deve usare **postgreSQL** come database relazionale, condiviso tra la web app Flask e la dashboard HRanalytics.
 - Il codice deve essere organizzato con Flask Blueprints e pattern repository.
 - Il progetto deve essere eseguibile localmente tramite ambiente virtuale Python.
 - I dati devono essere persistenti tra sessioni diverse.
 - Il sistema di autenticazione deve distinguere i ruoli `studente` e `docente` con accesso differenziato alle funzionalità.
 - La dashboard HRanalytics deve connettersi al database MySQL tramite le stesse credenziali della web app, senza duplicare i dati.
-- In produzione, il server WSGI utilizzato sarà **Gunicorn**, l'app verrà deployata su **Render** e il database MySQL sarà ospitato su **Railway** (piano free).
+- In produzione, il server WSGI utilizzato sarà **Gunicorn**, l'app verrà deployata su **Render** e il database postgreSQL sarà ospitato su **SUPABASE** (piano free).
 
 ---
 
@@ -124,8 +124,8 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 - **Visualizza progetti** (`UC03`): qualsiasi utente, anche non autenticato, può visualizzare l'elenco dei progetti disponibili con titolo, descrizione e nome del docente responsabile.
 - **Gestione progetti CRUD** (`UC04`): il docente autenticato può creare un nuovo progetto, modificarne i dettagli, eliminarlo o visualizzarne il dettaglio. Questa operazione estende `UC03` perché può essere avviata anche dalla lista dei progetti.
 - **Svolgi progetto** (`UC05`): lo studente autenticato si iscrive a un progetto tra quelli disponibili e ne traccia lo svolgimento sulla propria dashboard personale.
-- **Valuta docente** (`UC06`): lo studente autenticato assegna un voto in stelle (1–5) al docente responsabile di un progetto a cui è iscritto. La valutazione del docente è inclusa nella stessa azione di valutazione del progetto.
-- **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti. Questa operazione estende `UC03` perché il docente raggiunge i feedback partendo dalla vista progetti.
+- **Valuta docente** (`UC06`): lo studente autenticato assegna un voto in stelle (1–5) al docente responsabile di un progetto a cui è iscritto. Questa operazione include `UC05` perché per valutare un docente è necessario essere iscritti al suo progetto. La valutazione del docente è raccolta nella stessa azione di valutazione del progetto.
+- **Visualizza feedback ricevuti** (`UC07`): il docente autenticato accede a una pagina riepilogativa con tutte le valutazioni ricevute dagli studenti, con media delle stelle e lista dei commenti. Questa operazione include `UC03` perché per consultare i feedback il docente parte sempre dalla vista dei progetti.
 - **Visualizza dashboard** (`UC08`): lo studente autenticato può visualizzare la dashboard con dati aggregati sui progetti, le valutazioni medie dei docenti e le statistiche di partecipazione.
 - **Valuta progetto** (`UC09`): lo studente autenticato assegna un voto in stelle (1–5) e un commento testuale al progetto svolto. Questa operazione include `UC05` perché per valutare un progetto è necessario averlo iniziato (iscrizione).
 
@@ -140,12 +140,13 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 
 **Relazioni `<<include>>`:**
 
-- `UC09 Valuta progetto` include `UC05 Svolgi progetto`: per valutare un progetto è necessario averlo iniziato, quindi lo svolgimento è un comportamento sempre presente nella valutazione. La stessa azione raccoglie anche il voto al docente (`UC06`).
+- `UC09 Valuta progetto` include `UC05 Svolgi progetto`: per valutare un progetto è necessario averlo iniziato, quindi lo svolgimento è un comportamento sempre presente nella valutazione.
+- `UC06 Valuta docente` include `UC05 Svolgi progetto`: anche la valutazione del docente richiede che lo studente sia iscritto al progetto. La stessa azione di valutazione raccoglie entrambi i voti (progetto e docente).
+- `UC07 Visualizza feedback` include `UC03 Visualizza progetti`: il docente raggiunge i feedback ricevuti partendo sempre dalla vista dei propri progetti.
 
 **Relazioni `<<extend>>`:**
 
 - `UC04 Gestione CRUD` estende `UC03 Visualizza progetti`: la gestione di un progetto è un'azione opzionale che il docente può avviare a partire dalla lista dei progetti.
-- `UC07 Visualizza feedback` estende `UC03 Visualizza progetti`: la consultazione dei feedback è un'azione opzionale che il docente può raggiungere a partire dalla lista dei progetti.
 
 ### 6.4 Diagramma dei casi d'uso
 
@@ -153,19 +154,19 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 
 ## 7. Glossario dei termini
 
-| Termine            | Definizione                                                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `Progetto`       | Attività didattica creata da un docente, con titolo e descrizione, a cui gli studenti possono iscriversi e partecipare.           |
+| Termine            | Definizione                                                                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Progetto`       | Attività didattica creata da un docente, con titolo e descrizione, a cui gli studenti possono iscriversi e partecipare.                            |
 | `Feedback`       | Valutazione lasciata da uno studente, composta da due voti in stelle (1–5 per il docente e 1–5 per il progetto) e un commento testuale opzionale. |
-| `Stelle`         | Unità di misura della valutazione nel sistema di feedback, su scala da 1 (minimo) a 5 (massimo).                                  |
-| `Studente`       | Utente registrato con ruolo studente; può visualizzare e svolgere progetti, valutare i docenti e i progetti svolti.               |
-| `Docente`        | Utente registrato con ruolo docente; può creare e gestire progetti tramite CRUD e consultare i feedback ricevuti.                 |
-| `Visitatore`     | Utente non autenticato; può solo visualizzare l'elenco dei progetti pubblici.                                                     |
-| `Autenticazione` | Processo di registrazione e login che permette l'accesso alle funzionalità protette della piattaforma.                            |
-| `CRUD`           | Acronimo di Create, Read, Update, Delete — le quattro operazioni base sulla gestione dei dati di un progetto.                     |
-| `Blueprint`      | Modulo Flask che raggruppa le route, i template e la logica di una specifica area funzionale dell'applicazione.                    |
-| `Dashboard`      | Pagina personale dell'utente autenticato che raccoglie le informazioni rilevanti per il suo ruolo (progetti, feedback, analytics). |
-| `HRanalytics`    | Repository esterno integrato nel progetto come dashboard analitica, collegato allo stesso database MySQL.                          |
+| `Stelle`         | Unità di misura della valutazione nel sistema di feedback, su scala da 1 (minimo) a 5 (massimo).                                                   |
+| `Studente`       | Utente registrato con ruolo studente; può visualizzare e svolgere progetti, valutare i docenti e i progetti svolti.                                |
+| `Docente`        | Utente registrato con ruolo docente; può creare e gestire progetti tramite CRUD e consultare i feedback ricevuti.                                  |
+| `Visitatore`     | Utente non autenticato; può solo visualizzare l'elenco dei progetti pubblici.                                                                      |
+| `Autenticazione` | Processo di registrazione e login che permette l'accesso alle funzionalità protette della piattaforma.                                             |
+| `CRUD`           | Acronimo di Create, Read, Update, Delete — le quattro operazioni base sulla gestione dei dati di un progetto.                                      |
+| `Blueprint`      | Modulo Flask che raggruppa le route, i template e la logica di una specifica area funzionale dell'applicazione.                                     |
+| `Dashboard`      | Pagina personale dell'utente autenticato che raccoglie le informazioni rilevanti per il suo ruolo (progetti, feedback, analytics).                  |
+| `HRanalytics`    | Repository esterno integrato nel progetto come dashboard analitica, collegato allo stesso database MySQL.                                           |
 
 ---
 
@@ -246,7 +247,7 @@ Di seguito lo schema concettuale del database di SchoolHRM. Il diagramma mostra 
 **Note sulle relazioni:**
 
 - Un `UTENTE` con ruolo `docente` può creare zero o più `PROGETTO`.
-- Un `UTENTE` con ruolo `studente` si iscrive ai progetti tramite la tabella `ISCRIZIONE`, che tiene traccia anche dell'avanzamento (0–100%) e di eventuali note.
+- Un `UTENTE` con ruolo `studente` si iscrive ai progetti tramite la tabella `ISCRIZIONE`, che tiene traccia anche del progresso (0–100%) e di eventuali note.
 - Un `UTENTE` con ruolo `studente` può lasciare al massimo un `FEEDBACK` per progetto (vincolo `UNIQUE(studente_id, progetto_id)`). Il singolo record contiene sia la valutazione del docente (`stelle_docente`) sia quella del progetto (`stelle_progetto`), entrambe in scala 1–5, oltre a un commento opzionale. Il campo `docente_id` in `FEEDBACK` è una seconda chiave esterna verso `UTENTE` (il docente che riceve la valutazione), non rappresentata come linea separata per evitare ambiguità nel diagramma.
 - Il campo `stato` in `PROGETTO` può assumere i valori `disponibile`, `in_corso` o `completato`; la transizione `disponibile → in_corso` avviene automaticamente alla prima iscrizione.
 

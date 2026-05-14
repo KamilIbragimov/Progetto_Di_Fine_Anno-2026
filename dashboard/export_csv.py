@@ -1,17 +1,21 @@
 """Esporta i dati di SchoolHRM in tre CSV (studenti, docenti, progetti).
 Utile per analisi offline o backup, complementare alla dashboard Streamlit.
 
-Uso:
-    python export_csv.py
+Uso (dalla radice del progetto):
+    python dashboard/export_csv.py
+
+I file vengono scritti nella cartella exports/ (creata se non esiste).
 """
 import sqlite3
 import csv
 import os
 import sys
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EXPORT_DIR   = os.path.join(PROJECT_ROOT, 'exports')
+DB_PATH      = os.path.join(PROJECT_ROOT, 'instance', 'schoolhrm.sqlite')
 
-DB_PATH = os.path.join('instance', 'schoolhrm.sqlite')
+os.makedirs(EXPORT_DIR, exist_ok=True)
 
 if not os.path.exists(DB_PATH):
     print("Database non trovato. Esegui prima: python setup_db.py")
@@ -67,11 +71,12 @@ for filename, query in QUERIES.items():
         print(f"Nessun dato per {filename}, salto.")
         continue
     fieldnames = list(rows[0].keys())
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
+    out_path   = os.path.join(EXPORT_DIR, filename)
+    with open(out_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(dict(r) for r in rows)
-    print(f"{filename}: {len(rows)} righe esportate")
+    print(f"exports/{filename}: {len(rows)} righe esportate")
 
 conn.close()
 print("\nEsportazione completata.")

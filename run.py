@@ -1,3 +1,4 @@
+"""Entry point della web app Flask in modalità sviluppo (`python run.py`)."""
 import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))

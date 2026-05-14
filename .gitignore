@@ -1,6 +1,6 @@
 
 .claude/
-*_export.csv
+exports/
 
 # Python
 __pycache__/
@@ -26,3 +26,5 @@ Thumbs.db
 # Tests (solo in locale)
 tests/
 .pytest_cache/
+
+.DEPLOY_SUPABASE.md

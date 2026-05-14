@@ -1,3 +1,8 @@
+"""Blueprint /studenti — dashboard, iscrizione, progresso, valutazione progetto + docente.
+
+Include anche il launcher della dashboard Streamlit, che viene avviata on-demand
+come processo figlio quando uno studente clicca "Dashboard" in navbar.
+"""
 import os
 import socket
 import subprocess
@@ -14,8 +19,9 @@ from app.repositories import (
 
 bp = Blueprint('studenti', __name__, url_prefix='/studenti')
 
-STREAMLIT_PORT = 8501
-HRANALYTICS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STREAMLIT_PORT   = 8501
+PROJECT_ROOT     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DASHBOARD_SCRIPT = os.path.join(PROJECT_ROOT, 'dashboard', 'dashboard.py')
 
 
 def _streamlit_is_up():
@@ -38,12 +44,12 @@ def _launch_streamlit():
         flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
     subprocess.Popen(
         [
-            sys.executable, '-m', 'streamlit', 'run', 'app.py',
+            sys.executable, '-m', 'streamlit', 'run', DASHBOARD_SCRIPT,
             '--server.headless=true',
             '--server.port', str(STREAMLIT_PORT),
             '--browser.gatherUsageStats=false',
         ],
-        cwd=HRANALYTICS_DIR,
+        cwd=PROJECT_ROOT,
         creationflags=flags,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -56,8 +62,8 @@ def launch_dashboard():
     dashboard_url = f'http://localhost:{STREAMLIT_PORT}'
     if _streamlit_is_up():
         return redirect(dashboard_url)
-    if not os.path.isdir(HRANALYTICS_DIR):
-        flash(f'Cartella dashboard non trovata: {HRANALYTICS_DIR}', 'danger')
+    if not os.path.isfile(DASHBOARD_SCRIPT):
+        flash(f'Script dashboard non trovato: {DASHBOARD_SCRIPT}', 'danger')
         return redirect(url_for('studenti.dashboard'))
     try:
         _launch_streamlit()
@@ -77,7 +83,7 @@ def launch_dashboard():
 def dashboard():
     progetti_iscritto = ir.get_progetti_studente(g.user['id'])
     stats_docenti     = fr.get_statistiche_docenti()
-    totale_progetti   = len(pr.get_tutti_i_progetti())
+    totale_progetti   = pr.count_progetti()
     return render_template(
         'studenti/dashboard.html',
         progetti=progetti_iscritto,
@@ -98,9 +104,10 @@ def iscrivi(progetto_id):
         flash('Sei già iscritto a questo progetto.', 'info')
     else:
         ir.iscrivi(g.user['id'], progetto_id)
+        # Prima iscrizione: il progetto passa da 'disponibile' a 'in_corso' automaticamente
         if progetto['stato'] == 'disponibile':
             pr.aggiorna_stato(progetto_id, 'in_corso')
-        flash('Iscrizione avvenuta con successo!', 'success')
+        flash('Iscrizione avvenuta.', 'success')
     return redirect(url_for('main.dettaglio_progetto', id=progetto_id))
 
 
@@ -115,10 +122,10 @@ def aggiorna_progresso(progetto_id):
     note      = request.form.get('note', '').strip()
 
     if progresso not in range(0, 101):
-        flash('Valore di avanzamento non valido.', 'danger')
+        flash('Valore di progresso non valido.', 'danger')
     else:
         ir.aggiorna_progresso(g.user['id'], progetto_id, progresso, note)
-        flash('Avanzamento aggiornato.', 'success')
+        flash('Progresso aggiornato.', 'success')
 
     return redirect(url_for('studenti.dashboard'))
 
@@ -148,9 +155,20 @@ def valuta(progetto_id):
                 g.user['id'], progetto['docente_id'], progetto_id,
                 stelle_docente, stelle_progetto, commento
             )
-            flash('Valutazione inviata con successo!', 'success')
+            flash('Valutazione inviata.', 'success')
             return redirect(url_for('studenti.dashboard'))
 
     return render_template(
         'studenti/valuta.html', progetto=progetto, feedback=feedback_esistente
     )
+
+
+@bp.route('/valuta/<int:progetto_id>/rimuovi', methods=['POST'])
+@ruolo_required('studente')
+def rimuovi_valutazione(progetto_id):
+    if fr.get_feedback_studente_progetto(g.user['id'], progetto_id):
+        fr.elimina_feedback(g.user['id'], progetto_id)
+        flash('Valutazione rimossa.', 'success')
+    else:
+        flash('Nessuna valutazione da rimuovere.', 'info')
+    return redirect(url_for('studenti.dashboard'))

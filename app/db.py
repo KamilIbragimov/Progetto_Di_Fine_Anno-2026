@@ -1,3 +1,4 @@
+"""Gestione del ciclo di vita della connessione SQLite per request Flask."""
 import sqlite3
 from flask import g, current_app
 

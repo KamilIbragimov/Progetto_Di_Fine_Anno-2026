@@ -1,3 +1,4 @@
+"""Application factory: crea l'app Flask, registra i blueprint, inizializza il DB."""
 import os
 from flask import Flask, render_template
 from .db import init_app as init_db

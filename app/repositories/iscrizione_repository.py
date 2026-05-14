@@ -1,7 +1,9 @@
+"""Accesso ai dati della tabella `iscrizione` (studente ↔ progetto, con progresso)."""
 from app.db import get_db
 
 
 def iscrivi(studente_id, progetto_id):
+    """Crea l'iscrizione. INSERT OR IGNORE: idempotente, non solleva su duplicato."""
     db = get_db()
     db.execute(
         'INSERT OR IGNORE INTO iscrizione (studente_id, progetto_id) VALUES (?, ?)',
@@ -11,6 +13,7 @@ def iscrivi(studente_id, progetto_id):
 
 
 def is_iscritto(studente_id, progetto_id):
+    """True se lo studente è iscritto al progetto."""
     row = get_db().execute(
         'SELECT id FROM iscrizione WHERE studente_id = ? AND progetto_id = ?',
         (studente_id, progetto_id)
@@ -19,6 +22,7 @@ def is_iscritto(studente_id, progetto_id):
 
 
 def get_progetti_studente(studente_id):
+    """Progetti a cui lo studente è iscritto, con docente, progresso e note."""
     return get_db().execute(
         '''SELECT p.*, u.nome AS nome_docente,
                   i.progresso, i.note, i.created_at AS iscritto_il
@@ -32,6 +36,7 @@ def get_progetti_studente(studente_id):
 
 
 def get_studenti_iscritti(progetto_id):
+    """Studenti iscritti al progetto, ordinati per progresso decrescente."""
     return get_db().execute(
         '''SELECT u.nome, i.progresso, i.created_at AS iscritto_il
            FROM iscrizione i
@@ -43,6 +48,7 @@ def get_studenti_iscritti(progetto_id):
 
 
 def aggiorna_progresso(studente_id, progetto_id, progresso, note):
+    """Aggiorna il progresso (0-100) e le note di un'iscrizione esistente."""
     db = get_db()
     db.execute(
         '''UPDATE iscrizione SET progresso = ?, note = ?

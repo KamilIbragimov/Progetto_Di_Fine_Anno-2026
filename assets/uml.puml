@@ -66,6 +66,7 @@ class Feedback {
     --
     +crea(studente_id, docente_id, progetto_id, stelle_docente, stelle_progetto, commento)
     +aggiorna(stelle_docente, stelle_progetto, commento)
+    +elimina(studente_id, progetto_id)
 }
 
 Utente    "1" --> "*" Progetto   : crea

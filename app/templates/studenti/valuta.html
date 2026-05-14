@@ -42,5 +42,13 @@
       <a href="{{ url_for('studenti.dashboard') }}" class="btn btn-secondary">Annulla</a>
     </div>
   </form>
+
+  {% if feedback %}
+    <form method="post" action="{{ url_for('studenti.rimuovi_valutazione', progetto_id=progetto.id) }}"
+          style="margin-top:.8rem"
+          onsubmit="return confirm('Sei sicuro di voler rimuovere la tua valutazione?')">
+      <button type="submit" class="btn btn-danger btn-sm">Rimuovi valutazione</button>
+    </form>
+  {% endif %}
 </div>
 {% endblock %}

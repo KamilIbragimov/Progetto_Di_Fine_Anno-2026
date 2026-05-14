@@ -1,3 +1,4 @@
+"""Blueprint /docenti — area personale, CRUD progetti, visualizzazione feedback ricevuti."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, g
 from app.auth import ruolo_required
 from app.repositories import (
@@ -48,7 +49,7 @@ def crea_progetto():
             flash('Stato non valido.', 'danger')
         else:
             pr.crea_progetto(titolo, descrizione, stato, g.user['id'])
-            flash('Progetto creato con successo!', 'success')
+            flash('Progetto creato.', 'success')
             return redirect(url_for('main.lista_progetti'))
 
     return render_template('progetti/crea.html', stati=STATI_CREAZIONE)
@@ -73,7 +74,7 @@ def modifica_progetto(id):
             flash('Stato non valido.', 'danger')
         else:
             pr.aggiorna_progetto(id, titolo, descrizione, stato)
-            flash('Progetto aggiornato con successo!', 'success')
+            flash('Progetto aggiornato.', 'success')
             return redirect(url_for('main.dettaglio_progetto', id=id))
 
     return render_template('progetti/modifica.html', progetto=progetto, stati=STATI_VALIDI)

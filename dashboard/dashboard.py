@@ -1,3 +1,9 @@
+"""Dashboard Streamlit di SchoolHRM: legge il DB SQLite in read-only e mostra KPI,
+grafici e un modello di regressione logistica per predire la sufficienza.
+
+Uso (dalla radice del progetto):
+    streamlit run dashboard/dashboard.py
+"""
 import os
 import sqlite3
 import time
@@ -9,15 +15,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-DB_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'instance', 'schoolhrm.sqlite'
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH      = os.path.join(PROJECT_ROOT, 'instance', 'schoolhrm.sqlite')
 
 # ── Palette colori coerente ───────────────────────────────────────────────────
-COLORS      = ['#4361ee', '#f72585', '#4cc9f0', '#7209b7', '#06d6a0']
+COLORS       = ['#4361ee', '#f72585', '#4cc9f0', '#7209b7', '#06d6a0']
 STATE_COLORS = {'disponibile': '#4cc9f0', 'in_corso': '#f8961e', 'completato': '#06d6a0'}
 ESITO_COLORS = {'Sufficiente': '#06d6a0', 'Non sufficiente': '#f72585',
                 'Eccellente': '#06d6a0', 'Da migliorare': '#f72585'}
+BINARY_COLORS = {1: '#06d6a0', 0: '#f72585'}   # verde=positivo, rosso=negativo
 
 # ── Label colonne → nomi leggibili (definiti una volta sola) ──────────────────
 LABELS_S = {
@@ -231,7 +237,7 @@ with tab2:
 
     fig = px.bar(studenti.sort_values('progresso_medio', ascending=False),
                  x='nome', y='progresso_medio',
-                 color='sufficiente', color_discrete_map={1: '#06d6a0', 0: '#f72585'},
+                 color='sufficiente', color_discrete_map=BINARY_COLORS,
                  title="Progresso medio per studente",
                  labels={'nome': '', 'progresso_medio': 'Progresso medio (%)',
                          'sufficiente': 'Sufficiente'})
@@ -274,7 +280,7 @@ with tab3:
     with col_a:
         fig = px.bar(docenti.sort_values('valutazione_media', ascending=False),
                      x='nome', y='valutazione_media',
-                     color='eccellente', color_discrete_map={1: '#06d6a0', 0: '#f72585'},
+                     color='eccellente', color_discrete_map=BINARY_COLORS,
                      title="Valutazione media per docente",
                      labels={'nome': '', 'valutazione_media': 'Stelle medie (1-5)',
                              'eccellente': 'Eccellente'})
@@ -324,6 +330,8 @@ with tab4:
         st.warning("Servono studenti sia sufficienti che non sufficienti. Verifica i dati nel database.")
     else:
         X, y = studenti[features], studenti[target]
+        # stratify mantiene la stessa proporzione di sufficienti/non sufficienti nel test;
+        # con pochi campioni può non essere possibile → fallback senza stratify.
         try:
             X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
         except ValueError:

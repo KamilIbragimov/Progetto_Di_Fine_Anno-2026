@@ -1,3 +1,8 @@
+"""Ricrea il DB SQLite applicando app/bomba.sql (schema + seed iniziale).
+
+Uso:
+    python setup_db.py
+"""
 import sqlite3
 import os
 
