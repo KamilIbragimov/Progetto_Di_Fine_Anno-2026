@@ -149,9 +149,10 @@ Genera **3 file** nella cartella `exports/` (gitignored):
 
 ## 3. Come avviare il progetto (sviluppo locale)
 
-> ⚠️ Questo tutorial è per l'**ambiente di sviluppo locale**.
-> Quando il progetto sarà deployato (Gunicorn + Render + SUPABASE/postgresql),
-> questa sezione andrà riscritta per riflettere il setup remoto.
+> ℹ️ Questa sezione è per lo **sviluppo locale** (SQLite, server Flask).
+> Per il deploy in produzione (Gunicorn + Render + Supabase/PostgreSQL) vedi la **sezione 4**.
+> Il codice è **dual-mode**: se la variabile `DATABASE_URL` è assente usa SQLite,
+> se è presente usa PostgreSQL. Nessun cambio di codice tra i due ambienti.
 
 ### Prerequisiti
 
@@ -228,3 +229,65 @@ python -m pytest tests/ -v
 
 > La cartella `tests/` è gitignored (è una suite locale per verifica funzionale,
 > non parte della consegna).
+
+---
+
+## 4. Deploy in produzione (Render + Supabase)
+
+In produzione il database è **PostgreSQL su Supabase** e il server WSGI è
+**Gunicorn su Render**. Il codice non cambia: tutto è guidato dalla variabile
+d'ambiente `DATABASE_URL`.
+
+### Passo 1 — Crea il database su Supabase
+
+1. Vai su <https://supabase.com> → **New project**, scegli nome e password del database.
+2. A progetto creato: **Project Settings → Database → Connection string → URI**.
+3. Copia la **connection string** (formato `postgresql://postgres:...@db.xxxx.supabase.co:5432/postgres`).
+
+> ⚠️ La connection string contiene la password: non condividerla, non metterla nel
+> codice, non committarla. Va solo nella variabile d'ambiente `DATABASE_URL`.
+
+### Passo 2 — Popola lo schema su Supabase
+
+In locale, con la connection string nel `.env`:
+
+```bash
+# .env  →  DATABASE_URL=postgresql://postgres:...@db.xxxx.supabase.co:5432/postgres
+python setup_db.py
+```
+
+`setup_db.py` rileva `DATABASE_URL`, traduce lo schema da SQLite a PostgreSQL
+(`INTEGER PRIMARY KEY AUTOINCREMENT` → `SERIAL PRIMARY KEY`) e applica
+`app/bomba.sql` direttamente su Supabase. Stesso seed dei dati locali.
+
+### Passo 3 — Deploy della web app su Render
+
+1. Vai su <https://render.com> → **New** → **Web Service** → collega il repo GitHub.
+2. Configura:
+
+   | Campo | Valore |
+   |---|---|
+   | **Build Command** | `pip install -r requirements.txt` |
+   | **Start Command** | `gunicorn run:app` |
+   | **Branch** | `main` (deploy automatico ad ogni push) |
+
+3. In **Environment** aggiungi le variabili (mai nel codice):
+
+   | Variabile | Valore |
+   |---|---|
+   | `DATABASE_URL` | la connection string di Supabase |
+   | `SECRET_KEY` | una stringa casuale lunga |
+
+4. Render builda e pubblica l'app su un URL `https://<nome>.onrender.com`.
+
+### Passo 4 — Verifica
+
+- Apri l'URL pubblico, registra un utente, crea un progetto.
+- Riavvia il servizio su Render → i dati **sopravvivono** (sono su Supabase, non sul filesystem effimero di Render).
+
+### Note
+
+- La dashboard Streamlit resta locale (`streamlit run dashboard/dashboard.py`);
+  in alternativa può essere pubblicata separatamente su Streamlit Community Cloud
+  puntando allo stesso `DATABASE_URL`.
+- `.env` è in `.gitignore`: le credenziali non finiscono mai su GitHub.

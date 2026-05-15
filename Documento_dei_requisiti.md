@@ -91,13 +91,13 @@ SchoolHRM è un'applicazione web pensata per il contesto scolastico in cui gli s
 ## 5. Requisiti non funzionali
 
 - Le password devono essere protette tramite hashing (`werkzeug.security`).
-- Il backend deve usare **postgreSQL** come database relazionale, condiviso tra la web app Flask e la dashboard HRanalytics.
+- Il backend deve usare **PostgreSQL** come database relazionale, condiviso tra la web app Flask e la dashboard HRanalytics.
 - Il codice deve essere organizzato con Flask Blueprints e pattern repository.
 - Il progetto deve essere eseguibile localmente tramite ambiente virtuale Python.
 - I dati devono essere persistenti tra sessioni diverse.
 - Il sistema di autenticazione deve distinguere i ruoli `studente` e `docente` con accesso differenziato alle funzionalità.
-- La dashboard HRanalytics deve connettersi al database MySQL tramite le stesse credenziali della web app, senza duplicare i dati.
-- In produzione, il server WSGI utilizzato sarà **Gunicorn**, l'app verrà deployata su **Render** e il database postgreSQL sarà ospitato su **SUPABASE** (piano free).
+- La dashboard HRanalytics deve connettersi al database PostgreSQL tramite le stesse credenziali della web app, senza duplicare i dati.
+- In produzione, il server WSGI utilizzato sarà **Gunicorn**, l'app verrà deployata su **Render** e il database PostgreSQL sarà ospitato su **Supabase** (piano free).
 
 ---
 
@@ -166,7 +166,7 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 | `CRUD`           | Acronimo di Create, Read, Update, Delete — le quattro operazioni base sulla gestione dei dati di un progetto.                                      |
 | `Blueprint`      | Modulo Flask che raggruppa le route, i template e la logica di una specifica area funzionale dell'applicazione.                                     |
 | `Dashboard`      | Pagina personale dell'utente autenticato che raccoglie le informazioni rilevanti per il suo ruolo (progetti, feedback, analytics).                  |
-| `HRanalytics`    | Repository esterno integrato nel progetto come dashboard analitica, collegato allo stesso database MySQL.                                           |
+| `HRanalytics`    | Repository esterno integrato nel progetto come dashboard analitica, collegato allo stesso database PostgreSQL.                                           |
 
 ---
 
@@ -175,16 +175,16 @@ I rapporti tra attori non vanno confusi con queste relazioni. In SchoolHRM, `Stu
 Il progetto si articola in quattro fasi principali:
 
 - **Analisi**: definizione dei requisiti, schema ER e diagrammi UML/casi d'uso.
-- **Backend**: implementazione dell'app web con Blueprints, templates Jinja2, query SQL e connessione al database MySQL.
-- **Analytics**: rimodellazione del repository HRanalytics per adattarlo allo schema MySQL del progetto e integrazione nella piattaforma.
-- **Consegna**: test, correzione bug, documentazione, configurazione Gunicorn, deploy su Render e hosting database su Railway.
+- **Backend**: implementazione dell'app web con Blueprints, templates Jinja2, query SQL e connessione al database PostgreSQL.
+- **Analytics**: rimodellazione del repository HRanalytics per adattarlo allo schema PostgreSQL del progetto e integrazione nella piattaforma.
+- **Consegna**: test, correzione bug, documentazione, configurazione Gunicorn, deploy su Render e hosting database su Supabase.
 
 | Giorni | Attività                                                                                |
 | ------ | ---------------------------------------------------------------------------------------- |
-| 1–4   | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + MySQL    |
+| 1–4   | Analisi requisiti, schema ER, diagramma UML, casi d'uso, setup ambiente Flask + PostgreSQL    |
 | 5–17  | Backend: Blueprints, templates Jinja2, autenticazione con ruoli, CRUD progetti, feedback |
-| 18–23 | Analytics: refactor HRanalytics, adattamento schema MySQL, integrazione dashboard        |
-| 24–31 | Consegna: test, bug fix, documentazione, deploy su Render, database MySQL su Railway     |
+| 18–23 | Analytics: refactor HRanalytics, adattamento schema PostgreSQL, integrazione dashboard        |
+| 24–31 | Consegna: test, bug fix, documentazione, deploy su Render, database PostgreSQL su Supabase     |
 
 ### 8.1 Gantt semplificato
 
@@ -200,7 +200,7 @@ gantt
     Fine Analisi            :milestone, 2026-05-05, 0d
 
     section Backend
-    Setup Flask e MySQL     :b0, 2026-05-05, 2d
+    Setup Flask e PostgreSQL     :b0, 2026-05-05, 2d
     Auth e Ruoli            :b1, 2026-05-07, 4d
     Modulo Progetti         :b2, 2026-05-11, 4d
     Gestione Feedback       :b3, 2026-05-15, 3d
@@ -221,7 +221,7 @@ gantt
 
 #### Fase 1 — Analisi *(giorni 1–4)*
 
-Si definiscono i requisiti funzionali e non funzionali del sistema, si produce lo schema ER del database MySQL con tutte le entità (utente, progetto, feedback, iscrizione) e le relative relazioni, e si disegnano il diagramma UML delle classi e il diagramma dei casi d'uso. Si configura anche l'ambiente di sviluppo locale: virtual environment Python, Flask installato, connessione di test al database MySQL.
+Si definiscono i requisiti funzionali e non funzionali del sistema, si produce lo schema ER del database PostgreSQL con tutte le entità (utente, progetto, feedback, iscrizione) e le relative relazioni, e si disegnano il diagramma UML delle classi e il diagramma dei casi d'uso. Si configura anche l'ambiente di sviluppo locale: virtual environment Python, Flask installato, connessione di test al database PostgreSQL.
 
 #### Fase 2 — Backend *(giorni 5–17)*
 
@@ -229,12 +229,12 @@ Si costruisce l'intera applicazione web Flask organizzata in Blueprint distinti 
 
 #### Fase 3 — Analytics *(giorni 18–23)*
 
-Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stesso schema MySQL di SchoolHRM invece dei dataset generici originali. Si adattano le query e i modelli di dati della dashboard alle entità del progetto (studenti, docenti, progetti, feedback). La dashboard viene poi integrata come sezione dedicata nell'applicazione Flask, accessibile agli studenti autenticati, mostrando metriche aggregate come andamento delle valutazioni nel tempo, distribuzione dei feedback per progetto e tasso di partecipazione degli studenti.
+Si prende il repository HRanalytics e si rimodella per farlo lavorare sullo stesso schema PostgreSQL di SchoolHRM invece dei dataset generici originali. Si adattano le query e i modelli di dati della dashboard alle entità del progetto (studenti, docenti, progetti, feedback). La dashboard viene poi integrata come sezione dedicata nell'applicazione Flask, accessibile agli studenti autenticati, mostrando metriche aggregate come andamento delle valutazioni nel tempo, distribuzione dei feedback per progetto e tasso di partecipazione degli studenti.
 
 #### Fase 4 — Consegna *(giorni 24-31)*
 
 Si esegue il testing manuale di tutti i flussi principali (registrazione, login, CRUD progetti, iscrizione, feedback, dashboard analitica). Si correggono i bug emersi, si verifica la sicurezza dei form (protezione CSRF, validazione input lato server), si ottimizzano le query SQL e si completa la documentazione tecnica: README con istruzioni di installazione, struttura del progetto e variabili d'ambiente richieste.
-Si configura **Gunicorn** come server WSGI e si prepara il `Procfile` per Render. Il repository GitHub viene collegato a **Render** per il deploy automatico ad ogni `git push` sul branch `main`. Il database MySQL viene creato su **Railway** e le credenziali vengono inserite come variabili d'ambiente su Render (mai hardcodate nel codice). Si esegue un collaudo finale sull'ambiente di produzione verificando tutti i flussi end-to-end prima della consegna.
+Si configura **Gunicorn** come server WSGI e si prepara il `Procfile` per Render. Il repository GitHub viene collegato a **Render** per il deploy automatico ad ogni `git push` sul branch `main`. Il database PostgreSQL viene creato su **Supabase** e le credenziali vengono inserite come variabili d'ambiente su Render (mai hardcodate nel codice). Si esegue un collaudo finale sull'ambiente di produzione verificando tutti i flussi end-to-end prima della consegna.
 
 ---
 

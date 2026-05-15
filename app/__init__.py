@@ -1,8 +1,21 @@
 """Application factory: crea l'app Flask, registra i blueprint, inizializza il DB."""
 import os
+from datetime import datetime
 from flask import Flask, render_template
 from .db import init_app as init_db
 from . import auth, main, studenti, docenti
+
+
+def _fmt_data(value, fmt='%d/%m/%Y'):
+    """Formatta una data che può arrivare come stringa (SQLite) o datetime (PostgreSQL)."""
+    if not value:
+        return '—'
+    if isinstance(value, str):
+        try:
+            value = datetime.fromisoformat(value)
+        except ValueError:
+            return value[:10]
+    return value.strftime(fmt)
 
 
 def create_app():
@@ -11,8 +24,11 @@ def create_app():
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev'),
         DATABASE=os.path.join(app.instance_path, 'schoolhrm.sqlite'),
+        DATABASE_URL=os.environ.get('DATABASE_URL'),   # se valorizzato → PostgreSQL
         SESSION_PERMANENT=False,
     )
+
+    app.add_template_filter(_fmt_data, 'data')
 
     os.makedirs(app.instance_path, exist_ok=True)
 

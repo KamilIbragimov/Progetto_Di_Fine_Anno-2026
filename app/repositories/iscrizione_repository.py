@@ -3,10 +3,11 @@ from app.db import get_db
 
 
 def iscrivi(studente_id, progetto_id):
-    """Crea l'iscrizione. INSERT OR IGNORE: idempotente, non solleva su duplicato."""
+    """Crea l'iscrizione. ON CONFLICT DO NOTHING: idempotente su iscrizione duplicata."""
     db = get_db()
     db.execute(
-        'INSERT OR IGNORE INTO iscrizione (studente_id, progetto_id) VALUES (?, ?)',
+        '''INSERT INTO iscrizione (studente_id, progetto_id) VALUES (?, ?)
+           ON CONFLICT DO NOTHING''',
         (studente_id, progetto_id)
     )
     db.commit()

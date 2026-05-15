@@ -45,7 +45,7 @@
             <td><span class="stelle">{{ '★' * f.stelle_progetto }}{{ '☆' * (5 - f.stelle_progetto) }}</span></td>
             <td><span class="stelle">{{ '★' * f.stelle_docente }}{{ '☆' * (5 - f.stelle_docente) }}</span></td>
             <td>{{ f.commento or '—' }}</td>
-            <td>{{ f.created_at[8:10] ~ '/' ~ f.created_at[5:7] ~ '/' ~ f.created_at[:4] if f.created_at else '—' }}</td>
+            <td>{{ f.created_at | data }}</td>
           </tr>
         {% endfor %}
       </tbody>

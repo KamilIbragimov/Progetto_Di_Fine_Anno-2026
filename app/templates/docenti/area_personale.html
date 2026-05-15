@@ -54,7 +54,7 @@
             <a href="{{ url_for('main.dettaglio_progetto', id=p.id) }}"
                style="color:inherit;text-decoration:none">{{ p.titolo }}</a>
           </h2>
-          <div class="card-meta">Creato il {{ p.created_at[:10] if p.created_at else '—' }}</div>
+          <div class="card-meta">Creato il {{ p.created_at | data }}</div>
         </div>
         <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
           {{ stato_badge(p.stato) }}
@@ -126,7 +126,7 @@
                   <span style="font-size:.8rem;color:#888">progetto</span>
                   <span title="Voto docente" class="stelle">{{ '★' * f.stelle_docente }}{{ '☆' * (5 - f.stelle_docente) }}</span>
                   <span style="font-size:.8rem;color:#888">docente</span>
-                  <span style="color:#aaa;font-size:.8rem;margin-left:auto">{{ f.created_at[:10] if f.created_at else '' }}</span>
+                  <span style="color:#aaa;font-size:.8rem;margin-left:auto">{{ f.created_at | data }}</span>
                 </div>
                 {% if f.commento %}
                   <p class="feedback-commento">"{{ f.commento }}"</p>
