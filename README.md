@@ -8,7 +8,8 @@ Il progetto è composto da due tronconi:
 1. **Web app Flask** — la parte transazionale (registrazione, login, CRUD progetti, iscrizioni, valutazioni)
 2. **Dashboard Streamlit** — la parte analitica (KPI, grafici, predizione AI, export CSV)
 
-Entrambi leggono dallo **stesso database SQLit** — nessuna sincronizzazione manuale.
+Entrambi leggono dallo **stesso database** — SQLite in sviluppo locale,
+PostgreSQL in produzione — senza sincronizzazione manuale.
 
 ---
 
@@ -22,7 +23,7 @@ Entrambi leggono dallo **stesso database SQLit** — nessuna sincronizzazione ma
 │   ├── main.py                   # blueprint / — home, lista e dettaglio progetti
 │   ├── studenti.py               # blueprint /studenti — iscrizione, progresso, valuta
 │   ├── docenti.py                # blueprint /docenti — area personale, CRUD, feedback
-│   ├── db.py                     # gestione connessione SQLite (get_db, close_db)
+│   ├── db.py                     # connessione DB dual-mode: SQLite locale / PostgreSQL prod
 │   ├── bomba.sql                 # schema + seed iniziale del DB
 │   ├── repositories/             # layer di accesso ai dati (pattern repository)
 │   │   ├── utente_repository.py
@@ -55,11 +56,10 @@ Entrambi leggono dallo **stesso database SQLit** — nessuna sincronizzazione ma
 ├── instance/                     # cartella creata a runtime (gitignored)
 │   └── schoolhrm.sqlite          # database SQLite — single source of truth
 │
-├── run.py                        # entry point Flask (python run.py)
-├── setup_db.py                   # crea/ricrea il DB applicando bomba.sql
+├── run.py                        # entry point WSGI (python run.py | gunicorn run:app)
+├── setup_db.py                   # crea/ricrea il DB (SQLite locale o PostgreSQL/Supabase)
 ├── requirements.txt              # dipendenze Python
-├── Procfile                      # configurazione Gunicorn per il deploy
-├── usecase.puml                  # sorgente diagramma casi d'uso
+├── Procfile                      # Start Command per Render (gunicorn run:app)
 ├── Documento_dei_requisiti.md    # documento di analisi
 └── README.md                     # questo file
 ```
@@ -73,13 +73,13 @@ Entrambi leggono dallo **stesso database SQLit** — nessuna sincronizzazione ma
 | `app/main.py`             | Route pubbliche: home, lista progetti, dettaglio progetto                                                                                                                |
 | `app/studenti.py`         | Route protette per ruolo `studente`: dashboard personale, iscrizione, aggiornamento progresso, valutazione progetto + docente; lancia la dashboard Streamlit on-demand |
 | `app/docenti.py`          | Route protette per ruolo `docente`: area personale, CRUD progetti, vista feedback ricevuti                                                                             |
-| `app/db.py`               | Gestione del ciclo di vita della connessione SQLite per request                                                                                                          |
-| `app/bomba.sql`           | DDL delle 4 tabelle (`utente`, `progetto`, `iscrizione`, `feedback`) + ~50 righe di seed                                                                         |
+| `app/db.py`               | Connessione al DB per request: **SQLite** in locale, **PostgreSQL** (psycopg2) se `DATABASE_URL` è settata                                                              |
+| `app/bomba.sql`           | DDL delle 4 tabelle (`utente`, `progetto`, `iscrizione`, `feedback`) + ~110 righe di seed                                                                        |
 | `app/repositories/*.py`   | Funzioni che incapsulano tutte le query SQL — i blueprint non scrivono mai SQL direttamente                                                                             |
 | `dashboard/dashboard.py`  | Streamlit app: legge il DB in sola lettura e mostra grafici, tabelle, modello AI                                                                                         |
 | `dashboard/export_csv.py` | Versione CLI dell'export: genera 3 CSV nella cartella `exports/`                                                                                                       |
-| `run.py`                  | Avvia il server di sviluppo Flask (`flask run` equivalente)                                                                                                            |
-| `setup_db.py`             | Cancella `instance/schoolhrm.sqlite` se esiste e lo ricrea applicando `bomba.sql`                                                                                    |
+| `run.py`                  | Espone l'oggetto `app` WSGI: `python run.py` (dev Flask) in locale, `gunicorn run:app` in produzione                                                              |
+| `setup_db.py`             | Crea/ricrea il DB applicando `bomba.sql`: SQLite locale, oppure PostgreSQL/Supabase se `DATABASE_URL` è settata                                                      |
 
 ---
 
@@ -183,7 +183,7 @@ python setup_db.py
 ```
 
 Lo script crea `instance/schoolhrm.sqlite` con lo schema e i dati di esempio
-(5 docenti, 15 studenti, 15 progetti, 43 iscrizioni, 25 feedback).
+(6 docenti, 16 studenti, 16 progetti, 45 iscrizioni, 26 feedback).
 
 Credenziali di default per i dati di seed:
 
@@ -198,6 +198,35 @@ python run.py
 
 Apri `http://127.0.0.1:5000` e fai login con uno degli account seed,
 oppure registra un nuovo utente.
+
+> `python run.py` usa il **server di sviluppo Flask** (auto-reload, debug in
+> pagina). Va bene per sviluppare, **non** per la produzione.
+
+### Passo 4-bis (opzionale) — Provare il server di produzione in locale
+
+Per testare l'app **come girerà online** (server WSGI vero, niente auto-reload
+né traceback in pagina — identico a Render):
+
+- **Linux / macOS** — lo stesso comando che gira su Render:
+
+  ```bash
+  gunicorn run:app
+  ```
+
+- **Windows** — Gunicorn **non** funziona su Windows (dipende da `fcntl`, solo
+  Unix). Si usa l'equivalente **waitress**:
+
+  ```powershell
+  pip install waitress
+  python -m waitress --listen=127.0.0.1:8000 run:app
+  ```
+
+Apri poi `http://127.0.0.1:8000`. In entrambi i casi il `.env` viene caricato
+(`SECRET_KEY`); senza `DATABASE_URL` gira in modalità SQLite locale.
+
+> `waitress` serve solo per il test locale su Windows: non è in
+> `requirements.txt` perché in produzione (Render, Linux) si usa **gunicorn**,
+> già incluso e configurato nel `Procfile`.
 
 ### Passo 5 — Apri la dashboard analitica
 

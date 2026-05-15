@@ -1,5 +1,9 @@
-"""Dashboard Streamlit di SchoolHRM: legge il DB SQLite in read-only e mostra KPI,
-grafici e un modello di regressione logistica per predire la sufficienza.
+"""Dashboard Streamlit di SchoolHRM: legge il database in sola lettura e mostra
+KPI, grafici e un modello di regressione logistica per predire la sufficienza.
+
+Dual-mode come il resto del progetto: se la variabile d'ambiente `DATABASE_URL`
+è valorizzata legge da PostgreSQL (Supabase — stesso DB della web app in
+produzione), altrimenti dal file SQLite locale `instance/schoolhrm.sqlite`.
 
 Uso (dalla radice del progetto):
     streamlit run dashboard/dashboard.py
@@ -11,12 +15,16 @@ import time
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from dotenv import load_dotenv
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH      = os.path.join(PROJECT_ROOT, 'instance', 'schoolhrm.sqlite')
+
+load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # ── Palette colori coerente ───────────────────────────────────────────────────
 COLORS       = ['#4361ee', '#f72585', '#4cc9f0', '#7209b7', '#06d6a0']
@@ -67,10 +75,18 @@ div[data-testid="stSidebar"] { background: #f0f2ff; }
 
 
 # ── Lettura live dal database ─────────────────────────────────────────────────
+def _connect():
+    """Connessione in sola lettura: PostgreSQL se DATABASE_URL è settata, altrimenti SQLite."""
+    if DATABASE_URL:
+        import psycopg2
+        return psycopg2.connect(DATABASE_URL)
+    return sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True)
+
+
 def load_data():
     try:
-        conn = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True)
-    except sqlite3.OperationalError:
+        conn = _connect()
+    except Exception:
         return None, None, None
 
     studenti = pd.read_sql_query('''
@@ -78,13 +94,13 @@ def load_data():
             u.nome,
             COUNT(DISTINCT i.progetto_id)                   AS iscrizioni,
             COUNT(CASE WHEN i.progresso = 100 THEN 1 END)   AS completati,
-            ROUND(COALESCE(AVG(i.progresso), 0), 1)         AS progresso_medio,
+            CAST(ROUND(COALESCE(AVG(i.progresso), 0), 1) AS FLOAT) AS progresso_medio,
             CASE WHEN COALESCE(AVG(i.progresso), 0) >= 60
                  THEN 1 ELSE 0 END                          AS sufficiente
         FROM utente u
         LEFT JOIN iscrizione i ON i.studente_id = u.id
         WHERE u.ruolo = 'studente'
-        GROUP BY u.id ORDER BY u.id
+        GROUP BY u.id, u.nome ORDER BY u.id
     ''', conn)
 
     docenti = pd.read_sql_query('''
@@ -92,14 +108,14 @@ def load_data():
             u.nome,
             COUNT(DISTINCT p.id)                            AS n_progetti,
             COUNT(DISTINCT f.id)                            AS n_feedback,
-            ROUND(COALESCE(AVG(f.stelle_docente), 0), 2)    AS valutazione_media,
+            CAST(ROUND(COALESCE(AVG(f.stelle_docente), 0), 2) AS FLOAT) AS valutazione_media,
             CASE WHEN COALESCE(AVG(f.stelle_docente), 0) >= 4.0
                  THEN 1 ELSE 0 END                          AS eccellente
         FROM utente u
         LEFT JOIN progetto p ON p.docente_id = u.id
         LEFT JOIN feedback f ON f.docente_id = u.id
         WHERE u.ruolo = 'docente'
-        GROUP BY u.id ORDER BY u.id
+        GROUP BY u.id, u.nome ORDER BY u.id
     ''', conn)
 
     progetti = pd.read_sql_query('''
@@ -108,14 +124,14 @@ def load_data():
             p.stato,
             u.nome AS docente,
             COUNT(DISTINCT i.studente_id)                   AS n_studenti,
-            ROUND(COALESCE(AVG(i.progresso), 0), 1)         AS progresso_medio,
+            CAST(ROUND(COALESCE(AVG(i.progresso), 0), 1) AS FLOAT) AS progresso_medio,
             COUNT(DISTINCT f.id)                            AS n_feedback,
-            ROUND(COALESCE(AVG(f.stelle_progetto), 0), 2)   AS valutazione_progetto
+            CAST(ROUND(COALESCE(AVG(f.stelle_progetto), 0), 2) AS FLOAT) AS valutazione_progetto
         FROM progetto p
         JOIN utente u ON u.id = p.docente_id
         LEFT JOIN iscrizione i ON i.progetto_id = p.id
         LEFT JOIN feedback f ON f.progetto_id = p.id
-        GROUP BY p.id ORDER BY p.id
+        GROUP BY p.id, p.titolo, p.stato, u.nome ORDER BY p.id
     ''', conn)
 
     conn.close()
@@ -124,7 +140,11 @@ def load_data():
 
 studenti, docenti, progetti = load_data()
 if studenti is None:
-    st.error(f"⚠️ Database non trovato. Assicurati di aver eseguito `python setup_db.py`.")
+    if DATABASE_URL:
+        st.error("⚠️ Impossibile connettersi al database PostgreSQL (DATABASE_URL). "
+                 "Verifica la connection string e che `psycopg2-binary` sia installato.")
+    else:
+        st.error("⚠️ Database SQLite non trovato. Esegui prima `python setup_db.py`.")
     st.stop()
 if studenti.empty and docenti.empty:
     st.error("Nessun utente nel database.")
