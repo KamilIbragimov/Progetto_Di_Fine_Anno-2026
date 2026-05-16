@@ -54,7 +54,7 @@ PostgreSQL in produzione — senza sincronizzazione manuale.
 │   └── progetti_export.csv
 │
 ├── instance/                     # cartella creata a runtime (gitignored)
-│   └── schoolhrm.sqlite          # database SQLite — single source of truth
+│   └── schoolhrm.sqlite          # DB SQLite locale (in produzione: PostgreSQL/Supabase)
 │
 ├── run.py                        # entry point WSGI (python run.py | gunicorn run:app)
 ├── setup_db.py                   # crea/ricrea il DB (SQLite locale o PostgreSQL/Supabase)
@@ -94,13 +94,14 @@ Per integrarlo in SchoolHRM ho fatto due adattamenti:
 1. **Refactor del dominio**: i concetti HR sono stati rimappati in linguaggio scolastico:
    - "Promosso" → **Sufficiente** (studente con progresso medio ≥ 60%)
    - "Eccellente" (docente con valutazione media ≥ 4 ★) resta concettualmente analogo
-2. **Connessione diretta al DB**: niente più CSV esterni — la dashboard apre
-   `instance/schoolhrm.sqlite` in modalità read-only (`file:...?mode=ro`) e
-   condivide la stessa fonte di dati della web app.
+2. **Connessione diretta al DB**: niente più CSV esterni — la dashboard legge
+   in sola lettura lo **stesso database della web app**. È **dual-mode** come il
+   resto del progetto: SQLite locale (`file:...?mode=ro`) in sviluppo,
+   PostgreSQL/Supabase se `DATABASE_URL` è settata. Nessuna duplicazione dati.
 
 ### Cosa mostra (`dashboard/dashboard.py`)
 
-5 tab, tutti popolati live dal DB SQLite:
+5 tab, tutti popolati live dal database (SQLite in locale, PostgreSQL in produzione):
 
 | Tab                       | Contenuto                                                                                                                                                                  |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -131,9 +132,10 @@ Genera **3 file** nella cartella `exports/` (gitignored):
               │  run.py             │
               └──────────┬──────────┘
                          ▼
-              ┌─────────────────────┐
-              │ schoolhrm.sqlite    │   ← single source of truth
-              └──────────┬──────────┘
+              ┌─────────────────────────────────┐
+              │ DB unico (single source of truth)│
+              │ SQLite locale / PostgreSQL prod  │
+              └──────────┬──────────────────────┘
                          │ read-only
             ┌────────────┴────────────┐
             ▼                         ▼
@@ -316,7 +318,8 @@ python setup_db.py
 
 ### Note
 
-- La dashboard Streamlit resta locale (`streamlit run dashboard/dashboard.py`);
-  in alternativa può essere pubblicata separatamente su Streamlit Community Cloud
-  puntando allo stesso `DATABASE_URL`.
+- Dashboard ed export CSV sono **dual-mode** anch'essi: con `DATABASE_URL`
+  settata leggono lo stesso PostgreSQL della web app in produzione. La dashboard
+  Streamlit si esegue in locale (`streamlit run dashboard/dashboard.py`) oppure
+  si pubblica su Streamlit Community Cloud con la stessa `DATABASE_URL`.
 - `.env` è in `.gitignore`: le credenziali non finiscono mai su GitHub.
