@@ -74,7 +74,7 @@ PostgreSQL in produzione — senza sincronizzazione manuale.
 | `app/studenti.py`         | Route protette per ruolo `studente`: dashboard personale, iscrizione, aggiornamento progresso, valutazione progetto + docente; lancia la dashboard Streamlit on-demand |
 | `app/docenti.py`          | Route protette per ruolo `docente`: area personale, CRUD progetti, vista feedback ricevuti                                                                             |
 | `app/db.py`               | Connessione al DB per request: **SQLite** in locale, **PostgreSQL** (psycopg2) se `DATABASE_URL` è settata                                                              |
-| `app/bomba.sql`           | DDL delle 4 tabelle (`utente`, `progetto`, `iscrizione`, `feedback`) + ~110 righe di seed                                                                        |
+| `app/bomba.sql`           | DDL delle 4 tabelle (`utente`, `progetto`, `iscrizione`, `feedback`) + ~100 righe di seed                                                                        |
 | `app/repositories/*.py`   | Funzioni che incapsulano tutte le query SQL — i blueprint non scrivono mai SQL direttamente                                                                             |
 | `dashboard/dashboard.py`  | Streamlit app: legge il DB in sola lettura e mostra grafici, tabelle, modello AI                                                                                         |
 | `dashboard/export_csv.py` | Versione CLI dell'export: genera 3 CSV nella cartella `exports/`                                                                                                       |
@@ -185,7 +185,7 @@ python setup_db.py
 ```
 
 Lo script crea `instance/schoolhrm.sqlite` con lo schema e i dati di esempio
-(6 docenti, 16 studenti, 16 progetti, 45 iscrizioni, 26 feedback).
+(5 docenti, 15 studenti, 15 progetti, 44 iscrizioni, 25 feedback).
 
 Credenziali di default per i dati di seed:
 
