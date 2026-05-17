@@ -1,7 +1,8 @@
 """Blueprint /studenti — dashboard, iscrizione, progresso, valutazione progetto + docente.
 
-Include anche il launcher della dashboard Streamlit, che viene avviata on-demand
-come processo figlio quando uno studente clicca "Dashboard" in navbar.
+Include anche il launcher della dashboard Streamlit: in locale viene avviata
+on-demand come processo figlio; in produzione (env `DASHBOARD_URL` settata) il
+pulsante reindirizza all'istanza pubblica su Streamlit Cloud.
 """
 import os
 import socket
@@ -59,6 +60,12 @@ def _launch_streamlit():
 @bp.route('/launch-dashboard')
 @ruolo_required('studente')
 def launch_dashboard():
+    # In produzione (Render) la dashboard è un'app separata su Streamlit Cloud:
+    # se DASHBOARD_URL è settata, si reindirizza lì invece di avviare un processo
+    # figlio (impossibile su Render: porta unica, filesystem effimero).
+    external_url = os.environ.get('DASHBOARD_URL')
+    if external_url:
+        return redirect(external_url)
     dashboard_url = f'http://localhost:{STREAMLIT_PORT}'
     if _streamlit_is_up():
         return redirect(dashboard_url)

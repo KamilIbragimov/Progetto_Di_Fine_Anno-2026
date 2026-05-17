@@ -24,7 +24,20 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH      = os.path.join(PROJECT_ROOT, 'instance', 'schoolhrm.sqlite')
 
 load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
-DATABASE_URL = os.environ.get('DATABASE_URL')
+
+
+def _database_url():
+    """DATABASE_URL da env (.env locale / Render) o da st.secrets (Streamlit Cloud)."""
+    url = os.environ.get('DATABASE_URL')
+    if url:
+        return url
+    try:
+        return st.secrets.get('DATABASE_URL')
+    except Exception:
+        return None
+
+
+DATABASE_URL = _database_url()
 
 # ── Palette colori coerente ───────────────────────────────────────────────────
 COLORS       = ['#4361ee', '#f72585', '#4cc9f0', '#7209b7', '#06d6a0']
