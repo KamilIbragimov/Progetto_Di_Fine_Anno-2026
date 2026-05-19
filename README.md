@@ -23,9 +23,12 @@ sincronizzazione manuale.
 | 🌐 Web app   | [https://schoolhrm.onrender.com](https://schoolhrm.onrender.com)                               |
 | 📊 Dashboard | [https://progettodifineanno-2026.streamlit.app](https://progettodifineanno-2026.streamlit.app) |
 
-Credenziali demo già presenti nel database: docente `rossi@school.it` /
-password `rossi` — studente con email `...@student.it` / password `luca`.
-Oppure ci si registra direttamente dal sito.
+Account demo già presenti nel database (oppure ci si registra dal sito):
+
+| Ruolo    | Email               | Password  |
+| -------- | ------------------- | --------- |
+| Docente  | `rossi@school.it` | `rossi` |
+| Studente | `luca@student.it` | `luca`  |
 
 ---
 
@@ -169,20 +172,29 @@ Per la dashboard analitica, in un altro terminale:
 streamlit run dashboard/dashboard.py     # http://localhost:8501
 ```
 
-Note:
+In breve:
 
-- I test si eseguono con `python -m pytest -q`.
-- Per provare il server di produzione in locale: `gunicorn run:app`
-  (Linux/macOS) oppure `python -m waitress --listen=127.0.0.1:8000 run:app`
-  (Windows, dove Gunicorn non è supportato).
-- Le credenziali di esempio sono quelle indicate all'inizio del README.
+- Test: `python -m pytest -q`.
+- Server di produzione in locale: `gunicorn run:app` (Linux/macOS) oppure
+  `python -m waitress --listen=127.0.0.1:8000 run:app` (Windows, dove Gunicorn
+  non è supportato).
+- Per entrare: gli account demo in cima al README.
 
 ---
 
-## Note
+## Note operative
 
 - I servizi gratuiti (Render, Streamlit Cloud) si sospendono dopo un periodo di
   inattività: il primo accesso può richiedere ~30 secondi per il "risveglio". I
   dati non si perdono mai, restano su Supabase.
 - Aggiornare il progetto online significa solo fare `git push` su `main`:
   Render e Streamlit Cloud rideploiano in automatico.
+
+---
+
+## Documentazione e licenza
+
+- **`Documento_dei_requisiti.md`** — analisi completa: requisiti funzionali e
+  non funzionali, schema ER, diagramma delle classi, casi d'uso.
+- **`assets/`** — sorgenti PlantUML (`.puml`) e immagini dei diagrammi.
+- Licenza **MIT** (vedi `LICENSE`).
