@@ -10,8 +10,8 @@ prese, le difficoltà incontrate e come sono state risolte.
 **Completato e in produzione.** L'applicazione è online, funzionante e
 verificata end-to-end:
 
-- Web app Flask: <https://schoolhrm.onrender.com>
-- Dashboard Streamlit: <https://progettodifineanno-2026.streamlit.app>
+- Web app Flask: [https://schoolhrm.onrender.com](https://schoolhrm.onrender.com)
+- Dashboard Streamlit: [https://progettodifineanno-2026.streamlit.app](https://progettodifineanno-2026.streamlit.app)
 - Database PostgreSQL persistente su Supabase, condiviso dalle due app
 - 44 test automatici, tutti verdi
 
@@ -66,17 +66,20 @@ raggiunto, e il progetto è stato portato fino al deploy reale in produzione.
 ## 4. Cosa è stato difficile (e come è stato risolto)
 
 ### Modellazione dei casi d'uso
+
 Le relazioni *extend*/*include* fra i casi d'uso hanno richiesto diverse
 revisioni, sia logiche sia di leggibilità del diagramma. Risolto iterando sul
 file PlantUML e mantenendo allineati diagramma, documento e codice.
 
 ### Migrazione dello schema dei voti
+
 Il passaggio da un singolo voto a **due voti distinti** (`stelle_docente` e
 `stelle_progetto`) ha toccato database, repository, route e template tutti
 insieme. Risolto propagando la modifica in modo coerente su ogni layer e
 verificando con i test.
 
 ### Rendere il codice compatibile con PostgreSQL senza riscriverlo
+
 Il problema più grosso del deploy. La web app era scritta per SQLite. Invece di
 riscrivere tutti i repository, è stato creato un piccolo wrapper che fa parlare
 `psycopg2` con la stessa interfaccia di `sqlite3` (conversione automatica dei
@@ -84,7 +87,9 @@ placeholder `?` → `%s`, righe accessibili allo stesso modo). Così i repositor
 sono rimasti **invariati**.
 
 ### Differenze di dialetto SQL fra SQLite e PostgreSQL
+
 Diversi punti rompevano su PostgreSQL e sono stati resi portabili:
+
 - `INSERT OR IGNORE` (solo SQLite) → `ON CONFLICT DO NOTHING`
 - `GROUP BY` con colonne non aggregate (tollerato da SQLite, rifiutato da
   PostgreSQL) → aggiunte tutte le colonne necessarie
@@ -95,11 +100,13 @@ Diversi punti rompevano su PostgreSQL e sono stati resi portabili:
   dedicato
 
 ### Gunicorn non funziona su Windows
+
 Gunicorn dipende da un modulo solo-Unix (`fcntl`): impossibile testarlo in
 locale su Windows. Risolto usando **waitress** come equivalente per il test
 locale, tenendo Gunicorn per la produzione su Render (Linux).
 
 ### Il pulsante "Dashboard" non funzionava in produzione
+
 In locale la web app lanciava Streamlit come processo figlio e rimandava a
 `localhost:8501`. Su Render questo è impossibile: un solo servizio, una sola
 porta, e `localhost` punta al PC dell'utente. Risolto **deployando la dashboard
@@ -108,7 +115,9 @@ produzione, reindirizzi all'URL pubblico (gestito da una variabile
 d'ambiente). Il codice resta dual-mode: in locale comportamento invariato.
 
 ### Configurazione cloud poco intuitiva
+
 Diversi ostacoli pratici nel deploy:
+
 - **Supabase**: scegliere la connection string giusta — la "Direct connection"
   è IPv6 e Render free non la supporta; serviva la "Session pooler" (IPv4).
 - **Streamlit Cloud**: i segreti non sono variabili d'ambiente ma un sistema
@@ -116,19 +125,6 @@ Diversi ostacoli pratici nel deploy:
   adattamento al codice della dashboard.
 - Allineare la stessa stringa di connessione in tre posti (locale, Render,
   Streamlit) senza errori.
-
-### Dati di esempio non affidabili come fonte
-I conteggi dei dati di seed inizialmente riportati erano sbagliati perché letti
-da un database locale "sporcato" dai test. Corretti prendendo i numeri
-direttamente dal database appena creato (fonte autoritativa).
-
-### Gestione dei segreti
-La stringa di connessione (con password) è stata esposta per errore in uno
-screenshot durante la configurazione. È servito come promemoria concreto sul
-perché i segreti vanno trattati con attenzione; la procedura di rotazione è
-documentata anche se non applicata.
-
----
 
 ## 5. Lezioni apprese
 
@@ -140,11 +136,28 @@ documentata anche se non applicata.
 - "Funziona in locale" non implica "funziona in produzione": ambiente,
   filesystem, porte e rete cambiano le regole (Gunicorn, il pulsante dashboard,
   IPv6 vs IPv4).
-- I segreti vanno gestiti con disciplina dal primo minuto.
 
----
+## 6. Miglioramenti di usabilità e sicurezza
 
-## 6. Possibili sviluppi futuri
+### Protezione contro la cancellazione accidentale del database
+
+`setup_db.py` ora chiede conferma esplicita (scrivere "SÌ") prima di cancellare un database PostgreSQL. Questo protegge da esecuzioni accidentali quando `DATABASE_URL` è settato nel `.env`. Lo script prima controllava solo se `DATABASE_URL` era presente, senza verificare se stavi veramente intendendo cancellare dati di produzione.
+
+### Messaggi di avvio chiari
+
+Quando avvii `python run.py`, il server stampa immediatamente quale database sta usando:
+
+```
+============================================================
+DATABASE: PostgreSQL (Supabase)
+Host: aws-1-eu-central-1.pooler.supabase.com
+============================================================
+```
+
+Questo è utile sia per lo sviluppo (capire subito quale DB stai usando) che per il debugging (verificare che DATABASE_URL sia settato correttamente).
+
+
+## 7. Possibili sviluppi futuri
 
 - Rotazione della password del database e gestione segreti più rigorosa.
 - Migrazioni di schema versionate invece del `DROP/CREATE` di `bomba.sql`.

@@ -23,6 +23,18 @@ with open('app/bomba.sql', encoding='utf-8') as f:
 
 def setup_postgres(url):
     import psycopg2
+
+    # PROTEZIONE: chiedi conferma prima di cancellare dati su Supabase
+    print("\n" + "!"*60)
+    print("ATTENZIONE: Stai per cancellare il database PostgreSQL!")
+    print("Host:", url.split('@')[1].split(':')[0] if '@' in url else 'sconosciuto')
+    print("!"*60)
+    conferma = input("\nSei SICURO di voler cancellare TUTTI i dati? Scrivi 'SÌ' per continuare: ")
+
+    if conferma.strip().upper() not in ['SÌ', 'SI']:
+        print("Operazione annullata. Database non è stato modificato.")
+        sys.exit(0)
+
     # SQLite usa AUTOINCREMENT, PostgreSQL usa SERIAL: unica differenza di dialetto
     pg_sql = schema_sql.replace(
         'INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY'
@@ -32,7 +44,7 @@ def setup_postgres(url):
     cur.execute(pg_sql)
     conn.commit()
     conn.close()
-    print("Database PostgreSQL creato con successo (Supabase).")
+    print("\nDatabase PostgreSQL creato con successo (Supabase).")
     print("Ora puoi avviare il server con: gunicorn run:app")
 
 
